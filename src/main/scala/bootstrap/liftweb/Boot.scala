@@ -30,9 +30,12 @@ class Boot {
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
 
+    /*LiftRules.htmlProperties.default.set((r: Req) =>
+      new Html5Properties(r.userAgent))*/
+
     // where to search snippet
     LiftRules.addToPackages("edu.umd.mith.cc")
-    Schemifier.schemify(true, Schemifier.infoF _, User)
+    Schemifier.schemify(true, Schemifier.infoF _, User, Collection, Text, Document, Feature)
 
     // Build SiteMap
     def sitemap() = SiteMap(
