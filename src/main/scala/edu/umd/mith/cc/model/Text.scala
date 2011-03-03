@@ -91,6 +91,10 @@ class Document extends LongKeyedMapper[Document] with IdPK {
       case (value, i) => Feature.set(this, i + 1, value)
     }
   }
+
+  def features: Array[Double] = {
+    Feature.findAll(By(Feature.document, this), OrderBy(Feature.dim, Ascending)).map(_.value.is).toArray
+  }
 }
 
 object Feature extends Feature with LongKeyedMetaMapper[Feature] {
