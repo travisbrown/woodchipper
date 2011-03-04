@@ -142,7 +142,7 @@ class Visualization {
 
              jQuery('#drilldown-title').text(titles[item.seriesIndex])
              jQuery('#drilldown-author').text(authors[item.seriesIndex])
-             jQuery('#drilldown').text(htmls[item.seriesIndex][item.dataIndex])
+             jQuery('#drilldown').html(htmls[item.seriesIndex][item.dataIndex])
              plot_vizmap.highlight(item.series, item.datapoint);
            }
 
