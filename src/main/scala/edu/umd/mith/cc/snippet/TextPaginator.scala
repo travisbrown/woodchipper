@@ -12,12 +12,12 @@ import edu.umd.mith.cc.model._
 import Helpers._
 
 
-//object titleVar extends RequestVar[String](S.param("title").openOr(""))
-//object authorVar extends RequestVar[String](S.param("author").openOr(""))
+object titleVar extends RequestVar[String](S.param("title").openOr(""))
+object authorVar extends RequestVar[String](S.param("author").openOr(""))
 
 class Search {
-  object titleVar extends RequestVar[String](S.param("title").openOr(""))
-  object authorVar extends RequestVar[String](S.param("author").openOr(""))
+  //object titleVar extends RequestVar[String](S.param("title").openOr(""))
+  //object authorVar extends RequestVar[String](S.param("author").openOr(""))
   
   def render(in: NodeSeq): NodeSeq = {
     var title = titleVar.is //S.param("title") openOr ""

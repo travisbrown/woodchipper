@@ -13,6 +13,10 @@ import edu.umd.mith.cc.analysis._
 import Helpers._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.widgets.flot._
+import js._
+import JsCmds._
+import JE._
+
 
 class Visualization {
   def draw(xhtml: NodeSeq) = {
@@ -43,6 +47,7 @@ class Visualization {
 
       new FlotSerie() {
         override val data = vals
+        override val label = Full(text.title.is.substring(0, 60) + "...")
         override val points = Full(new FlotPointsOptions {
           override val radius = Full(3)
           override val show = Full(true)
@@ -52,6 +57,7 @@ class Visualization {
         override val shadowSize = Full(3)
       }
     }
+
     
 
 
@@ -73,18 +79,39 @@ class Visualization {
     }*/
 
     val options = new FlotOptions {
+      override val grid = Full(new FlotGridOptions {
+        override val hoverable = Full(true)
+        override val clickable = Full(true)
+      })
+
       override val xaxis = Full(new FlotAxisOptions {
-        override val min = Full(-0.5)
-        override val max = Full(0.5)
+        override val min = Full(-0.25)
+        override val max = Full(0.25)
       })
 
       override val yaxis = Full(new FlotAxisOptions {
-        override val min = Full(-0.5)
-        override val max = Full(0.5)
+        override val min = Full(-0.25)
+        override val max = Full(0.25)
       })
     }
 
     Flot.render("vizmap", series, options, Flot.script(xhtml))
+  }
+
+  def clicker(xhtml: NodeSeq) = {
+    Script(JsRaw(
+      """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
+           if (item) {
+             alert(item.dataIndex, item.series.label);
+             plot_vizmap.highlight(item.series, item.datapoint);
+           }
+
+         });
+
+        /*jQuery("#vizmap").bind("plothover", function (event, pos, item) {
+          jQuery("#x").text(pos.x.toFixed(2));
+          jQuery("#y").text(pos.y.toFixed(2));
+        });*/"""))
   }
 }
 
