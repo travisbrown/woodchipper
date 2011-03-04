@@ -42,9 +42,8 @@ object JsonImporter {
   def main(args: Array[String]) {
     val boot = new bootstrap.liftweb.Boot
     boot.boot
-    //(new File("/home/travis/tmp/hathi")).listFiles.foreach { println(_) }
-    val je = new JsonImporter("/home/travis/tmp/hathi")
-    je.importAll
+    val importer = new JsonImporter(args(0))
+    importer.importAll
   }
 }
 

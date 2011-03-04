@@ -57,6 +57,7 @@ class Text extends LongKeyedMapper[Text] with IdPK {
   object author extends MappedString(this, 512)
   object url extends MappedString(this, 512)
   object year extends MappedInt(this)
+  object uuid extends MappedUniqueId(this, 64)
   object collection extends MappedLongForeignKey(this, Collection)
 
   def collectionName: String = {
