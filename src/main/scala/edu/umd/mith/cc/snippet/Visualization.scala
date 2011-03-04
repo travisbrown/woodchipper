@@ -85,13 +85,13 @@ class Visualization {
       })
 
       override val xaxis = Full(new FlotAxisOptions {
-        override val min = Full(-0.25)
-        override val max = Full(0.25)
+        override val min = Full(-0.4)
+        override val max = Full(0.4)
       })
 
       override val yaxis = Full(new FlotAxisOptions {
-        override val min = Full(-0.25)
-        override val max = Full(0.25)
+        override val min = Full(-0.4)
+        override val max = Full(0.4)
       })
     }
 
