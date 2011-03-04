@@ -16,9 +16,19 @@ import net.liftweb.widgets.flot._
 import js._
 import JsCmds._
 import JE._
+import net.liftweb.json.DefaultFormats
+import net.liftweb.json.Extraction._
+import net.liftweb.json.JsonDSL._
+import net.liftweb.json.JsonAST._
+import net.liftweb.json.Printer.pretty 
 
+//case class Doc(title: String, author: String, html: String)
 
 class Visualization {
+  //val docs = scala.collection.mutable.Map[(Int, Int), Doc]()
+  val titles = new scala.collection.mutable.ArrayBuffer[String]
+  val authors = new scala.collection.mutable.ArrayBuffer[String]
+  val htmls = new scala.collection.mutable.ArrayBuffer[scala.collection.mutable.ArrayBuffer[String]]
   def draw(xhtml: NodeSeq) = {
 
     val colors = List("#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD", "#B0C4DE", "#FFE4C4", "#B22222")
@@ -27,9 +37,16 @@ class Visualization {
     val matrix = scala.collection.mutable.ArrayBuffer[Array[Double]]()
     val colass = scala.collection.mutable.ArrayBuffer[String]()
 
+    //val docs = scala.collection.mutable.Map[(Int, Int), Doc]() 
+
     selectedTexts.is.toList.zip(colors).map { case (text, color) =>
+      titles += text.title.is
+      authors += text.author.is
+      htmls += new scala.collection.mutable.ArrayBuffer[String]
       Document.findAll(By(Document.text, text.id)).map { document =>
         matrix += document.features
+        htmls(htmls.size - 1) += document.html.is
+
         //colass += color
       }
     }
@@ -37,11 +54,14 @@ class Visualization {
     val reduced = reducer.reduce(matrix.toArray).data
     //reduced.foreach { _.foreach { println(_) }}
     var i = 0
-
+    var ti = 0
     val series = selectedTexts.is.toList.zip(colors).map { case (text, col) =>
+      val tj = ti
+      ti += 1
       val vals = Document.findAll(By(Document.text, text.id)).map { doc =>
         val j = i
         i += 1
+        //docs((tj, j)) = Doc(text.title.is, text.author.is, doc.html.is)
         (reduced(j)(0), reduced(j)(1))
       }
 
@@ -99,10 +119,30 @@ class Visualization {
   }
 
   def clicker(xhtml: NodeSeq) = {
+    implicit val formats = DefaultFormats
+
+    /*val points = docs.map {
+      case Doc(title, author, html) => "[
+    }*/
+    val json = "var titles = " + pretty(render(JArray(titles.toList.map(JString(_))))) + "; " +
+               "var authors = " + pretty(render(JArray(authors.toList.map(JString(_))))) + "; " +
+               "var htmls = " + pretty(render(JArray(htmls.toList.map((s: scala.collection.mutable.ArrayBuffer[String]) => JArray(s.toList.map(JString(_))))))) + "; "
+                
+     
+
+    //val json = "var titles  = [" +  titles.map("\"" + _ + "\"").mkString(",") + "];  " +
+    //           "var authors = [" + authors.map("\"" + _ + "\"").mkString(",") + "];  " +
+    //           "var htmls = [" + authors.map("\"" + _ + "\"").mkString(",") + "];  " +
+      
+
     Script(JsRaw(
-      """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
+      json + """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
            if (item) {
-             alert(item.dataIndex, item.series.label);
+             //alert(htmls[item.seriesIndex][item.dataIndex]);
+
+             jQuery('#drilldown-title').text(titles[item.seriesIndex])
+             jQuery('#drilldown-author').text(authors[item.seriesIndex])
+             jQuery('#drilldown').text(htmls[item.seriesIndex][item.dataIndex])
              plot_vizmap.highlight(item.series, item.datapoint);
            }
 

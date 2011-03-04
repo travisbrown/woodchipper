@@ -3,9 +3,14 @@
   <script id="jquery" src="/classpath/jquery.js" type="text/javascript"/>
 </head>
   <h2>Map of the documents</h2>
-  <div id="vizmap" style="width: 700px; height: 700px;"></div>
+  <div id="vizmap" style="width: 900px; height: 700px;"></div>
   <lift:Visualization.draw></lift:Visualization.draw>
   <lift:Visualization.clicker>
   </lift:Visualization.clicker>
+  <div style="margin-top: 20px;">
+  <h3 id="drilldown-title"></h3>
+  <h4 id="drilldown-author"></h4>
+  <div id="drilldown"></div>
+  </div>
 </lift:surround>
 
