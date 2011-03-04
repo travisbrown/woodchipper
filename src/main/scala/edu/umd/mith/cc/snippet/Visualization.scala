@@ -67,7 +67,7 @@ class Visualization {
 
       new FlotSerie() {
         override val data = vals
-        override val label = Full(text.title.is.substring(0, 60) + "...")
+        override val label = Full(text.title.is.substring(0, Math.min(60, text.title.is.length)) + "...")
         override val points = Full(new FlotPointsOptions {
           override val radius = Full(3)
           override val show = Full(true)
