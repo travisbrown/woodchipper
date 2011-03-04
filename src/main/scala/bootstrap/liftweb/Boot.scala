@@ -10,7 +10,7 @@ import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.edu.umd.mith.cc.model._
-
+import net.liftweb.widgets.flot._
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -30,6 +30,8 @@ class Boot {
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
 
+
+    Flot.init
     /*LiftRules.htmlProperties.default.set((r: Req) =>
       new Html5Properties(r.userAgent))*/
 
@@ -40,10 +42,11 @@ class Boot {
     // Build SiteMap
     def sitemap() = SiteMap(
       Menu("Home") / "index" >> User.AddUserMenusAfter, // Simple menu form
-      Menu("Search") / "search", // Simple menu form
+      Menu("Search") / "search",
+      Menu("Viz") / "viz"
       // Menu with special Link
-      Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")))
+      /*Menu(/*Loc("Static", Link(List("static"), true, "/static/index"), 
+	       "Static Content")*/)*/)
 
     LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap()))
 

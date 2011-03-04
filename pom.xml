@@ -45,6 +45,11 @@
       <version>2.2</version>
     </dependency>
     <dependency>
+      <groupId>net.liftweb</groupId>
+      <artifactId>lift-widgets_2.8.1</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>0.9.26</version>
