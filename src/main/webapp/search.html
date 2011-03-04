@@ -1,0 +1,25 @@
+<lift:surround with="default" at="content">
+  <lift:Search form="POST">
+    Title: <search:title/>
+    Author: <search:author/>
+    <search:perform/> 
+  </lift:Search>
+  <br/>
+  <table title="Results">
+    <tr><th/><th>ID</th><th>Collection</th><th>Title</th></tr>
+    <lift:TextSearchPaginatorSnippet.renderPage>
+      <tr><td><item:add/></td><td><item:uid/></td><td><item:collection/></td><td><item:title/></td></tr>
+    </lift:TextSearchPaginatorSnippet.renderPage>
+  </table>
+  <lift:TextSearchPaginatorSnippet.paginate>
+    <nav:first/> | <nav:prev /> | <nav:allpages/> | <nav:next/> | <nav:last/> | <nav:records />
+  </lift:TextSearchPaginatorSnippet.paginate>
+  <br/>
+  <table title="Selecteds">
+    <tr><th/><th>ID</th><th>Collection</th><th>Title</th></tr>
+    <lift:SelectedSnippet.renderPage>
+      <tr><td><item:remove/></td><td><item:uid/></td><td><item:collection/></td><td><item:title/></td></tr>
+    </lift:SelectedSnippet.renderPage>
+  </table>
+</lift:surround>
+                              
