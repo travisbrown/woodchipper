@@ -44,7 +44,7 @@ class Search {
 class VisualizeButtonSnippet {
   def render(in: NodeSeq): NodeSeq = {
     bind("vis", in,
-         "perform" -> SHtml.submit("Visualize", () => ()))
+         "perform" -> SHtml.submit("Visualize", () => S.redirectTo("/viz")))
   }
 
   def perform(): Unit = {

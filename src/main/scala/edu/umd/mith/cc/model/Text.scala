@@ -98,7 +98,7 @@ class Document extends LongKeyedMapper[Document] with IdPK {
   }
 
   def features: Array[Double] = {
-    Feature.findAll(By(Feature.document, this), OrderBy(Feature.dim, Ascending)).map(_.value.is).toArray
+    Feature.findAll(By(Feature.document, this.id), OrderBy(Feature.dim, Ascending)).map(_.value.is).toArray
   }
 }
 
@@ -106,7 +106,7 @@ object Feature extends Feature with LongKeyedMetaMapper[Feature] {
   override def dbTableName = "features" // define the DB table name
 
   def set(document: Document, dim: Int, value: Double): Boolean = {
-    val existing = this.findAll(By(Feature.document, document), By(Feature.dim, dim))
+    val existing = this.findAll(By(Feature.document, document.id), By(Feature.dim, dim))
     if (existing.isEmpty) {
       val feature = this.create.document(document)
                                .dim(dim)
