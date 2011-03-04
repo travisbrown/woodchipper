@@ -41,9 +41,20 @@ class Search {
   }
 }
 
+class VisualizeButtonSnippet {
+  def render(in: NodeSeq): NodeSeq = {
+    bind("vis", in,
+         "perform" -> SHtml.submit("Visualize", () => ()))
+  }
+
+  def perform(): Unit = {
+    S.redirectTo("/visualize")
+  }
+}
+
 class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPaginatorSnippet[Text, MappedField[_, Text]] {
 //class TextSearchPaginatorSnippet extends PaginatorSnippet[Text] {
-  override def itemsPerPage = 10
+  override def itemsPerPage = 5
 
   //object titleVar extends RequestVar[String](S.param("title").openOr(""))
   //object authorVar extends RequestVar[String](S.param("author").openOr(""))
@@ -81,6 +92,8 @@ class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPagi
                      "year" -> item.year,
                      "collection" -> item.collectionName))
 
+  //override def allPages = 
+
   /*override def pageUrl(offset: Long) = {
     val currentTitle = titleVar.is
     S.fmapFunc(S.NFuncHolder(() => { titleVar(currentTitle); authorVar(currentAuthor) })) { (title, author) =>
@@ -89,6 +102,24 @@ class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPagi
     //  Helpers.appendParams(super.pageUrl(offset), List(name -> "_"))
     }
   }*/
+
+  override def pagesXml(pages : Seq[Int], sep: NodeSeq) = scala.xml.Text("...")
+
+  /*def paginate(xhtml: NodeSeq) = {  
+       bind(navPrefix, xhtml,  
+         "first" -> pageXml(0, firstXml),  
+         "prev" -> pageXml(first-itemsPerPage max 0, prevXml),  
+         "allpages" -> {(n:NodeSeq) => pagesXml(0 until numPages, n)},
+         "zoomedpages" -> {(ns: NodeSeq) => pagesXml(zoomedPages, ns)},  
+         "next" -> pageXml(first+itemsPerPage min itemsPerPage*(numPages-1) max
+         0, nextXml),  
+         "last" -> pageXml(itemsPerPage*(numPages-1), lastXml),  
+         "records" -> currentXml,  
+         "recordsFrom" -> Text(recordsFrom),  
+         "recordsTo" -> Text(recordsTo),  
+         "recordsCount" -> Text(count.toString)  
+       )  
+     }*/
 }
 
 object selectedTexts extends SessionVar[Set[Text]](Set[Text]())

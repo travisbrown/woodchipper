@@ -53,11 +53,15 @@ object Text extends Text with LongKeyedMetaMapper[Text] {
 class Text extends LongKeyedMapper[Text] with IdPK {
   def getSingleton = Text // what's the "meta" server
   object uid extends MappedString(this, 512)
-  object title extends MappedString(this, 512)
+  object title extends MappedString(this, 1024)
   object author extends MappedString(this, 512)
   object url extends MappedString(this, 512)
   object year extends MappedInt(this)
   object collection extends MappedLongForeignKey(this, Collection)
+
+  def collectionName: String = {
+    this.collection.obj.map(_.name.is).openOr("unknown")
+  }
 }
 
 object Document extends Document with LongKeyedMetaMapper[Document] {

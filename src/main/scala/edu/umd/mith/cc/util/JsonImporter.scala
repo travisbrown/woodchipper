@@ -6,9 +6,12 @@ import scala.io.Source
 import net.liftweb.json._
 import net.liftweb.json.JsonAST._
 
+import _root_.bootstrap.liftweb.Boot
+
 import edu.umd.mith.cc.model._
 
 class JsonImporter(path: String) {
+  (new File(path)).listFiles.foreach { println(_) }
   private val files = (new File(path)).listFiles.filter(_.getName.endsWith(".json"))
 
   def importAll {
@@ -18,7 +21,7 @@ class JsonImporter(path: String) {
       val JField(_, JString(textId)) = doc \ "metadata" \ "textid"
       val JField(_, JString(title)) = doc \ "metadata" \ "title"
       val JField(_, JString(author)) = doc \ "metadata" \ "author"
-      val JField(_, JString(year)) = doc \ "metadata" \ "year"
+      val JField(_, JInt(year)) = doc \ "metadata" \ "date"
 
       val JField(_, JArray(chunks)) = doc \ "chunks"
 
@@ -37,7 +40,10 @@ class JsonImporter(path: String) {
 
 object JsonImporter {
   def main(args: Array[String]) {
-    val je = new JsonImporter(args(0))
+    val boot = new bootstrap.liftweb.Boot
+    boot.boot
+    //(new File("/home/travis/tmp/hathi")).listFiles.foreach { println(_) }
+    val je = new JsonImporter("/home/travis/tmp/hathi")
     je.importAll
   }
 }
