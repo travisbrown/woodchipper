@@ -33,13 +33,13 @@ class Search {
   }
 
   def perform(title: String, author: String): Unit = {
-    if (!title.isEmpty) {
+    //if (!title.isEmpty) {
       titleVar(title)
-    }
+    //}
 
-    if (!author.isEmpty) {
+    //if (!author.isEmpty) {
       authorVar(author)
-    }
+    //}
 
     offsetVar(0)
     /*S.param("offset").map { offset =>

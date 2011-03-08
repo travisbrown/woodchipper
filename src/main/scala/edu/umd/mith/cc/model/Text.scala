@@ -71,8 +71,8 @@ object Document extends Document with LongKeyedMetaMapper[Document] {
   // define the order fields will appear in forms and output
   override def fieldOrder = List(text, uid, plain, html)
 
-  override def dbIndexes = Index(IndexField(uid)) ::
-                           Index(IndexField(plain)) :: Nil
+  override def dbIndexes = Index(IndexField(uid)) :: Nil
+                           //Index(IndexField(plain)) :: Nil
                            //Index(IndexField(text)) :: Nil
   def add(text: Text, uid: String, plain: String, html: String) = {
     val document = this.create.text(text)
