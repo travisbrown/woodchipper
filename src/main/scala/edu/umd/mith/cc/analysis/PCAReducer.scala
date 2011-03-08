@@ -29,7 +29,7 @@ class PCAReduction(
 class PCAReducer extends Reducer[PCAReduction] {
   private val algebra = new Algebra
 
-  def reduce(data: Array[Array[Double]]): PCAReduction = {
+  def reduce(data: Array[Array[Double]], dims: Int): PCAReduction = {
     val matrix = new DenseDoubleMatrix2D(data)
 
     /* First we compute the empirical mean. */
@@ -54,7 +54,10 @@ class PCAReducer extends Reducer[PCAReduction] {
     val projection: DoubleMatrix2D = this.algebra.mult(matrix, evd.getV).viewColumnFlip
     //val projection: DoubleMatrix2D = this.algebra.mult(matrix, evd.getV).assign(Functions.abs).viewColumnFlip
 
-    new PCAReduction(projection.toArray)
+    val colsSelected = Math.min(dims, projection.columns)
+    val view = projection.viewPart(0, 0, projection.rows, colsSelected)
+
+    new PCAReduction(view.toArray)
   }
 }
 

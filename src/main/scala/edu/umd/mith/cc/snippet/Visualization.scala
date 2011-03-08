@@ -26,32 +26,32 @@ import net.liftweb.json.Printer.pretty
 
 class Visualization {
   //val docs = scala.collection.mutable.Map[(Int, Int), Doc]()
-  val titles = new scala.collection.mutable.ArrayBuffer[String]
-  val authors = new scala.collection.mutable.ArrayBuffer[String]
-  val htmls = new scala.collection.mutable.ArrayBuffer[scala.collection.mutable.ArrayBuffer[String]]
+  //val titles = new scala.collection.mutable.ArrayBuffer[String]
+  //val authors = new scala.collection.mutable.ArrayBuffer[String]
+  //val htmls = new scala.collection.mutable.ArrayBuffer[scala.collection.mutable.ArrayBuffer[String]]
   def draw(xhtml: NodeSeq) = {
 
     val colors = List("#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD", "#B0C4DE", "#FFE4C4", "#B22222")
 
     val reducer = new PCAReducer
     val matrix = scala.collection.mutable.ArrayBuffer[Array[Double]]()
-    val colass = scala.collection.mutable.ArrayBuffer[String]()
+    //val colass = scala.collection.mutable.ArrayBuffer[String]()
 
     //val docs = scala.collection.mutable.Map[(Int, Int), Doc]() 
 
     selectedTexts.is.toList.zip(colors).map { case (text, color) =>
-      titles += text.title.is
-      authors += text.author.is
-      htmls += new scala.collection.mutable.ArrayBuffer[String]
+      //titles += text.title.is
+      //authors += text.author.is
+      //htmls += new scala.collection.mutable.ArrayBuffer[String]
       Document.findAll(By(Document.text, text.id)).map { document =>
         matrix += document.features
-        htmls(htmls.size - 1) += document.html.is
+      //  htmls(htmls.size - 1) += document.html.is
 
         //colass += color
       }
     }
 
-    val reduced = reducer.reduce(matrix.toArray).data
+    val reduced = reducer.reduce(matrix.toArray, 2).data
     //reduced.foreach { _.foreach { println(_) }}
     var i = 0
     var ti = 0
@@ -119,14 +119,14 @@ class Visualization {
   }
 
   def clicker(xhtml: NodeSeq) = {
-    implicit val formats = DefaultFormats
+    //implicit val formats = DefaultFormats
 
     /*val points = docs.map {
       case Doc(title, author, html) => "[
     }*/
-    val json = "var titles = " + pretty(render(JArray(titles.toList.map(JString(_))))) + "; " +
-               "var authors = " + pretty(render(JArray(authors.toList.map(JString(_))))) + "; " +
-               "var htmls = " + pretty(render(JArray(htmls.toList.map((s: scala.collection.mutable.ArrayBuffer[String]) => JArray(s.toList.map(JString(_))))))) + "; "
+    //val json = "var titles = " + pretty(render(JArray(titles.toList.map(JString(_))))) + "; " +
+    //           "var authors = " + pretty(render(JArray(authors.toList.map(JString(_))))) + "; " +
+    //           "var htmls = " + pretty(render(JArray(htmls.toList.map((s: scala.collection.mutable.ArrayBuffer[String]) => JArray(s.toList.map(JString(_))))))) + "; "
                 
      
 
@@ -136,7 +136,7 @@ class Visualization {
       
 
     Script(JsRaw(
-      json + """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
+      """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
            if (item) {
              //alert(htmls[item.seriesIndex][item.dataIndex]);
 
