@@ -32,7 +32,9 @@ class JsonImporter(path: String) {
         val JField(_, JString(plain)) = chunk \ "representations" \ "plain"
         val JField(_, JString(html)) = chunk \ "representations" \ "html"
 
-        val document = Document.add(text, chunkId, plain, html) 
+        if (plain.trim.size > 32) {
+          val document = Document.add(text, chunkId, plain, html)
+        }
       }
     }
   }

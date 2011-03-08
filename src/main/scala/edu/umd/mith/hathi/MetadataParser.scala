@@ -1,4 +1,4 @@
-package edu.umd.mith.util.hathi
+package edu.umd.mith.hathi
 
 import java.io._
 import scala.collection.mutable.ArrayBuffer
@@ -152,10 +152,7 @@ object MetadataParser {
   def main(args: Array[String]) {
     val dp = new DateCleaner
     val hc = new HathiCollection(args(1))
-    //val texts = new ArrayBuffer[JObject]()
-    /*new Dedup(new TextSelector(args(0), Set("description"), (0, 1800), "eng","pd")).foreach {(*/
-    new TextSelector(args(0), Set("description"), (0, 1800), "eng", "pd").foreach {
-    //new MetadataParser(args(0), Set("identifier", "description")).foreach {
+    new TextSelector(args(0), Set("description"), (0, 1850), "eng", "pd").foreach {
       case (id: String, metadata: Map[String, List[String]]) => {
 
         val year = metadata.get("date").flatMap { v: List[String] => dp.parseYearField(v(0)) }.map(latestYear(_)) match {

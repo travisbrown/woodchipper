@@ -1,4 +1,4 @@
-package edu.umd.mith.util.hathi
+package edu.umd.mith.hathi
 
 import java.io.File
 import scala.io.Source
