@@ -49,7 +49,7 @@ class Visualization {
     //val docs = scala.collection.mutable.Map[(Int, Int), Doc]() 
 
 
-    val sel = selectedTexts.is.reverse.map { (text: Text) => (text, Document.findAll(By(Document.text, text.id))) }
+    val sel = selectedTexts.is.map { (text: Text) => (text, Document.findAll(By(Document.text, text.id))) }
 
     //val matrix = selectedTexts.is.reverse.map { text =>
       //titles += text.title.is

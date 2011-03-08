@@ -12,8 +12,11 @@ import edu.umd.mith.cc.model._
 import Helpers._
 
 
-object titleVar extends RequestVar[String](S.param("title").openOr(""))
-object authorVar extends RequestVar[String](S.param("author").openOr(""))
+object titleVar extends SessionVar[String](S.param("title").openOr(""))
+object authorVar extends SessionVar[String](S.param("author").openOr(""))
+object offsetVar extends SessionVar[Long](S.param("offset").map(_.toLong).openOr(0))
+
+//object searchState extends SessionVar[(String, String)]
 
 class Search {
   //object titleVar extends RequestVar[String](S.param("title").openOr(""))
@@ -22,6 +25,7 @@ class Search {
   def render(in: NodeSeq): NodeSeq = {
     var title = titleVar.is //S.param("title") openOr ""
     var author = authorVar.is //S.param("author") openOr ""
+    //var offset = offsetVar.is //S.param("author") openOr ""
     bind("search", in,
          "title" -> SHtml.text(title, title = _),
          "author" -> SHtml.text(author, author = _),
@@ -29,7 +33,22 @@ class Search {
   }
 
   def perform(title: String, author: String): Unit = {
-    if (title.isEmpty && author.isEmpty) {
+    if (!title.isEmpty) {
+      titleVar(title)
+    }
+
+    if (!author.isEmpty) {
+      authorVar(author)
+    }
+
+    /*S.param("offset").map { offset =>
+      offsetVar(offset.toInt)
+      S.redirectTo("/search?offset=" + offset)
+    }.openOr {
+      S.redirectTo("/search")
+    }*/
+
+    /*if (title.isEmpty && author.isEmpty) {
       S.redirectTo("/search")
     } else if (title.isEmpty && !author.isEmpty) {
       S.redirectTo("/search?author=" + author)
@@ -37,7 +56,7 @@ class Search {
       S.redirectTo("/search?title=" + title)
     } else if (!title.isEmpty && !author.isEmpty) {
       S.redirectTo("/search?title=" + title + "&author=" + author)
-    }
+    }*/
   }
 }
 
@@ -52,7 +71,8 @@ class VisualizeButtonSnippet {
   }
 }
 
-class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPaginatorSnippet[Text, MappedField[_, Text]] {
+//class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPaginatorSnippet[Text, MappedField[_, Text]] {
+class TextSearchPaginatorSnippet extends StatefulSnippet with PaginatorSnippet[Text] { //, MappedField[_, Text]] {
 //class TextSearchPaginatorSnippet extends PaginatorSnippet[Text] {
   override def itemsPerPage = 5
 
@@ -84,13 +104,24 @@ class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPagi
     selectedTexts(current)
   }
 
-  def renderPage(in: NodeSeq): NodeSeq = page.flatMap(item =>
-    bind("item", in, "add" -> SHtml.link("/search?add=" + item.id, () => selectText(item), scala.xml.Text("Add")),
+  override def first = {
+    S.param(this.offsetParam).map { offset =>
+      val off = offset.toLong
+      offsetVar(off)
+      off
+    }.openOr(offsetVar.is)
+  }
+
+  def renderPage(in: NodeSeq): NodeSeq = page.flatMap(item => {
+    //bind("item", in, "add" -> SHtml.link("/add?id=" + item.id, () => selectText(item), scala.xml.Text("Add")),
+    val url = "/add?id=%d".format(item.id.is)
+    //val url = "/add?id=" + item.id.toString
+    bind("item", in, "add" -> <a href={url}>Add</a>,
                      "uid" -> item.uid,
                      "title" -> item.title,
                      "author" -> item.author,
                      "year" -> item.year,
-                     "collection" -> item.collectionName))
+                     "collection" -> item.collectionName)})
 
   //override def allPages = 
 
@@ -132,13 +163,15 @@ class SelectedSnippet {
     selectedTexts(current)
   }
 
-  def renderPage(in: NodeSeq): NodeSeq = selectedTexts.toSeq.flatMap(item =>
-    bind("item", in, "remove" -> SHtml.link("/search?remove=" + item.id, () => removeText(item), scala.xml.Text("Remove")),
+  def renderPage(in: NodeSeq): NodeSeq = selectedTexts.flatMap(item => {
+    //bind("item", in, "remove" -> SHtml.link("/remove?id=" + item.id, () => removeText(item), scala.xml.Text("Remove")),
+    val url = "/remove?id=%d".format(item.id.is)
+    bind("item", in, "remove" -> <a href={url}>Remove</a>,
                      "uid" -> item.uid,
                      "title" -> item.title,
                      "author" -> item.author,
                      "year" -> item.year,
-                     "collection" -> item.collectionName))
+                     "collection" -> item.collectionName)})
 }
 
 }

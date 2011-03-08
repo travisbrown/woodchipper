@@ -43,7 +43,9 @@ class Boot {
     def sitemap() = SiteMap(
       Menu.i("Home") / "index" >> User.AddUserMenusAfter, // Simple menu form
       Menu.i("Search") / "search",
-      Menu.i("Viz") / "viz"
+      Menu.i("Viz") / "viz",
+      Menu.i("Remove") / "remove" >> Hidden,
+      Menu.i("Add") / "add" >> Hidden
       // Menu with special Link
       /*Menu(/*Loc("Static", Link(List("static"), true, "/static/index"), 
 	       "Static Content")*/)*/)
