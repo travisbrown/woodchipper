@@ -24,6 +24,15 @@ import net.liftweb.json.Printer.pretty
 
 //case class Doc(title: String, author: String, html: String)
 
+class WoodchipperSerie extends FlotSerie {
+  override val points = Full(new FlotPointsOptions {
+    override val radius = Full(3)
+    override val show = Full(true)
+  })
+  override val lines = Full(new FlotLinesOptions { override val show = Full(false) })
+  override val shadowSize = Full(3)
+}
+
 class Visualization {
   //val docs = scala.collection.mutable.Map[(Int, Int), Doc]()
   //val titles = new scala.collection.mutable.ArrayBuffer[String]
@@ -34,69 +43,48 @@ class Visualization {
     val colors = List("#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD", "#B0C4DE", "#FFE4C4", "#B22222")
 
     val reducer = new PCAReducer
-    val matrix = scala.collection.mutable.ArrayBuffer[Array[Double]]()
+    //val matrix = scala.collection.mutable.ArrayBuffer[Array[Double]]()
     //val colass = scala.collection.mutable.ArrayBuffer[String]()
 
     //val docs = scala.collection.mutable.Map[(Int, Int), Doc]() 
 
-    selectedTexts.is.toList.zip(colors).map { case (text, color) =>
+
+    val sel = selectedTexts.is.reverse.map { (text: Text) => (text, Document.findAll(By(Document.text, text.id))) }
+
+    //val matrix = selectedTexts.is.reverse.map { text =>
       //titles += text.title.is
       //authors += text.author.is
       //htmls += new scala.collection.mutable.ArrayBuffer[String]
-      Document.findAll(By(Document.text, text.id)).map { document =>
-        matrix += document.features
+    //  .map { document =>
+    //    matrix += document.features
       //  htmls(htmls.size - 1) += document.html.is
 
         //colass += color
-      }
-    }
+    //  }
+    //}
+
+    val matrix = sel.flatMap { _._2.map { _.features } }
 
     val reduced = reducer.reduce(matrix.toArray, 2).data
     //reduced.foreach { _.foreach { println(_) }}
     var i = 0
-    var ti = 0
-    val series = selectedTexts.is.toList.zip(colors).map { case (text, col) =>
-      val tj = ti
-      ti += 1
-      val vals = Document.findAll(By(Document.text, text.id)).map { doc =>
+    //var ti = 0
+    val series = sel.zip(colors).map { case ((text, docs), col) =>
+      //val tj = ti
+      //ti += 1
+      val vals = docs.map { doc => //Document.findAll(By(Document.text, text.id)).map { doc =>
         val j = i
         i += 1
         //docs((tj, j)) = Doc(text.title.is, text.author.is, doc.html.is)
         (reduced(j)(0), reduced(j)(1))
       }
 
-      new FlotSerie() {
+      new WoodchipperSerie() {
         override val data = vals
-        override val label = Full(text.title.is.substring(0, Math.min(60, text.title.is.length)) + "...")
-        override val points = Full(new FlotPointsOptions {
-          override val radius = Full(3)
-          override val show = Full(true)
-        })
-        override val lines = Full(new FlotLinesOptions { override val show = Full(false) })
         override val color = Full(Left(col))
-        override val shadowSize = Full(3)
+        override val label = Full(text.title.is.substring(0, Math.min(60, text.title.is.length)) + "...")
       }
     }
-
-    
-
-
-
-    /*val data_values: List[(Double, Double)] = for (i <- List.range (-100, 100))
-      yield (i / 100.0, Math.sin(i / 100.0)
-    )
-
-    val data_to_plot = new FlotSerie() {
-      override val data = data_values
-      override val points = Full(new FlotPointsOptions {
-        override val radius = Full(3)
-        override val show = Full(true)
-      })
-      override val lines = Full(new FlotLinesOptions { override val show = Full(false) })
-      override val color = Full(Left("#7fff00"))
-      override val shadowSize = Full(3)
-
-    }*/
 
     val options = new FlotOptions {
       override val grid = Full(new FlotGridOptions {

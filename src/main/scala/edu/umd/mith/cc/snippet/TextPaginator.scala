@@ -80,7 +80,7 @@ class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPagi
   def headers = ("uid", Text.uid) :: ("title", Text.title) :: Nil
 
   def selectText(text: Text) {
-    val current = selectedTexts.is + text
+    val current = text :: selectedTexts.is.filterNot(_ == text)
     selectedTexts(current)
   }
 
@@ -122,13 +122,13 @@ class TextSearchPaginatorSnippet extends StatefulSnippet with StatefulSortedPagi
      }*/
 }
 
-object selectedTexts extends SessionVar[Set[Text]](Set[Text]())
+object selectedTexts extends SessionVar[List[Text]](List[Text]())
 
 class SelectedSnippet {
   //object selectedTexts extends SessionVar[Set[Text]](Set[Text]())
 
   def removeText(text: Text) {
-    val current = selectedTexts.is - text
+    val current = selectedTexts.is.filterNot(_ == text)
     selectedTexts(current)
   }
 
