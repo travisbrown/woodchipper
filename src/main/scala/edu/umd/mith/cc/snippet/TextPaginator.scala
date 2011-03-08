@@ -41,6 +41,7 @@ class Search {
       authorVar(author)
     }
 
+    offsetVar(0)
     /*S.param("offset").map { offset =>
       offsetVar(offset.toInt)
       S.redirectTo("/search?offset=" + offset)
