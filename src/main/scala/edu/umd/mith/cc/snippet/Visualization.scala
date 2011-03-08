@@ -26,11 +26,11 @@ import net.liftweb.json.Printer.pretty
 
 class WoodchipperSerie extends FlotSerie {
   override val points = Full(new FlotPointsOptions {
-    override val radius = Full(3)
+    override val radius = Full(4)
     override val show = Full(true)
   })
   override val lines = Full(new FlotLinesOptions { override val show = Full(false) })
-  override val shadowSize = Full(3)
+  override val shadowSize = Full(8)
 }
 
 class Visualization {
