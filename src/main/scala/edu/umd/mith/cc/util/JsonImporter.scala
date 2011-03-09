@@ -1,8 +1,9 @@
 package edu.umd.mith.cc {
 package util {
 
+import java.io.BufferedReader
 import java.io.File
-import scala.io.Source
+import java.io.FileReader
 import net.liftweb.json._
 import net.liftweb.json.JsonAST._
 
@@ -11,17 +12,17 @@ import _root_.bootstrap.liftweb.Boot
 import edu.umd.mith.cc.model._
 
 class JsonImporter(path: String) {
-  (new File(path)).listFiles.foreach { println(_) }
   private val files = (new File(path)).listFiles.filter(_.getName.endsWith(".json"))
 
   def importAll {
-    this.files.toIterator.map(Source.fromFile(_).mkString).foreach { contents =>
-      val doc = JsonParser.parse(contents)
-      val JField(_, JString(collection)) = doc \ "metadata" \ "collection"
-      val JField(_, JString(textId)) = doc \ "metadata" \ "textid"
-      val JField(_, JString(title)) = doc \ "metadata" \ "title"
-      val JField(_, JString(author)) = doc \ "metadata" \ "author"
-      val JField(_, JInt(year)) = doc \ "metadata" \ "date"
+    this.files.toIterator.map((file: File) => new BufferedReader(new FileReader(file))).foreach { reader =>
+      val doc = JsonParser.parse(reader)
+      val metadata = doc \ "metadata"
+      val JField(_, JString(collection)) = metadata \ "collection"
+      val JField(_, JString(textId)) = metadata \ "textid"
+      val JField(_, JString(title)) = metadata \ "title"
+      val JField(_, JString(author)) = metadata \ "author"
+      val JField(_, JInt(year)) = metadata \ "date"
 
       val JField(_, JArray(chunks)) = doc \ "chunks"
 

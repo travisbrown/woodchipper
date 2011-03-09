@@ -18,7 +18,7 @@ class MalletExporter(collection: String, random: Boolean, count: Int) {
     texts.foreach { text =>
       val documents = Document.findAll(By(Document.text, text.id), OrderBy(Document.id, Ascending))
       documents.foreach { document =>
-        writer.write("%s#%s _ %s\n".format(text.uid.is, document.uid.is, document.plain.is.replaceAll("""\s+""", " ")))
+        writer.write("%s|%s _ %s\n".format(text.uid.is, document.uid.is, document.plain.is.replaceAll("""\s+""", " ")))
       }
     }
   }
