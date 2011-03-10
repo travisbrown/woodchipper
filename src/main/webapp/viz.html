@@ -11,7 +11,7 @@
 // <![CDATA[
       var loadDocument = function(event, pos, item) {
         if (item) {
-          jQuery.getJSON('/api/text/' + textIds[item.seriesIndex] + '/' + item.dataIndex + '.json', function(data) {
+          jQuery.getJSON('api/text/' + textIds[item.seriesIndex] + '/' + item.dataIndex + '.json', function(data) {
             jQuery('#drilldown-title').text(data.text.title + ' (' + data.document.seq + ')');
             jQuery('#drilldown-author').text(data.text.author + ' (' + data.text.year + ')');
             jQuery('#drilldown-text').html(data.document.html);
