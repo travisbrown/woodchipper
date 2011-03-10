@@ -3,7 +3,11 @@ package bootstrap.liftweb
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
+import _root_.net.liftweb.http.rest._
 import _root_.net.liftweb.http.provider._
+import _root_.net.liftweb.json.JsonAST._
+import _root_.net.liftweb.json.JsonDSL._
+import _root_.net.liftweb.mapper._
 import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.sitemap.Loc._
 import Helpers._
@@ -11,6 +15,17 @@ import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConn
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.edu.umd.mith.cc.model._
 import net.liftweb.widgets.flot._
+
+object WoodchipperRest extends RestHelper {
+  serve {
+    case Req("api" :: "text" :: textId :: docSeqId :: _, "json", GetRequest) => {
+      val text = Text.findAll(By(Text.id, textId.toLong))(0)
+      val doc = Document.findAll(By(Document.text, text.id))(docSeqId.toInt)
+      ("text" -> ("title" -> text.title.is) ~ ("author" -> text.author.is) ~ ("year" -> text.year.is)) ~
+      ("document" -> ("seq" -> doc.uid.is) ~ ("html" -> scala.xml.Utility.escape(doc.plain.is).replaceAll("\n", "<br />")))
+    }
+  }
+}
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -32,8 +47,8 @@ class Boot {
 
 
     Flot.init
-    /*LiftRules.htmlProperties.default.set((r: Req) =>
-      new Html5Properties(r.userAgent))*/
+    //LiftRules.htmlProperties.default.set((r: Req) =>
+    //  new Html5Properties(r.userAgent))
 
     // where to search snippet
     LiftRules.addToPackages("edu.umd.mith.cc")
@@ -45,7 +60,8 @@ class Boot {
       Menu.i("Search") / "search",
       Menu.i("Viz") / "viz",
       Menu.i("Remove") / "remove" >> Hidden,
-      Menu.i("Add") / "add" >> Hidden
+      Menu.i("Add") / "add" >> Hidden,
+      Menu.i("Drilldown") / "drilldown" >> Hidden
       // Menu with special Link
       /*Menu(/*Loc("Static", Link(List("static"), true, "/static/index"), 
 	       "Static Content")*/)*/)
@@ -67,6 +83,7 @@ class Boot {
     LiftRules.early.append(makeUtf8)
 
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
+    LiftRules.statelessDispatchTable.append(WoodchipperRest)
 
     S.addAround(DB.buildLoanWrapper)
   }

@@ -34,6 +34,7 @@ class WoodchipperSerie extends FlotSerie {
 }
 
 class Visualization {
+  var textIds: List[Long] = List[Long]()
   //val docs = scala.collection.mutable.Map[(Int, Int), Doc]()
   //val titles = new scala.collection.mutable.ArrayBuffer[String]
   //val authors = new scala.collection.mutable.ArrayBuffer[String]
@@ -50,6 +51,7 @@ class Visualization {
 
 
     val sel = selectedTexts.is.map { (text: Text) => (text, Document.findAll(By(Document.text, text.id))) }
+    textIds = selectedTexts.is.map { text => text.id.is }
 
     //val matrix = selectedTexts.is.reverse.map { text =>
       //titles += text.title.is
@@ -122,16 +124,25 @@ class Visualization {
     //           "var authors = [" + authors.map("\"" + _ + "\"").mkString(",") + "];  " +
     //           "var htmls = [" + authors.map("\"" + _ + "\"").mkString(",") + "];  " +
       
+    /*         jQuery.ajax({
+               url: "drilldown?text=" + item.seriesIndex + "&document=" + item.dataIndex,
+               success: function(data, textStatus, jqXHR) {
+                jQuery('#drilldown').html(data);
+               }
+             })
+    */
 
-    Script(JsRaw(
-      """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
+
+    Script(JsRaw("var textIds = " + pretty(render(JArray(textIds.map(JInt(_))))) + ";\n"))
+    /*  """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
            if (item) {
-             //alert(htmls[item.seriesIndex][item.dataIndex]);
+             jQuery('#drilldown').load("drilldown?text=" + textIds[item.seriesIndex] + "&document=" + item.dataIndex);
 
-             jQuery('#drilldown-title').text(titles[item.seriesIndex])
-             jQuery('#drilldown-author').text(authors[item.seriesIndex])
-             jQuery('#drilldown').html(htmls[item.seriesIndex][item.dataIndex])
-             plot_vizmap.highlight(item.series, item.datapoint);
+             //alert(htmls[item.seriesIndex][item.dataIndex]);
+             //jQuery('#drilldown-title').text(titles[item.seriesIndex])
+             //jQuery('#drilldown-author').text(authors[item.seriesIndex])
+             //jQuery('#drilldown').html(htmls[item.seriesIndex][item.dataIndex])
+             //plot_vizmap.highlight(item.series, item.datapoint);
            }
 
          });
@@ -139,7 +150,7 @@ class Visualization {
         /*jQuery("#vizmap").bind("plothover", function (event, pos, item) {
           jQuery("#x").text(pos.x.toFixed(2));
           jQuery("#y").text(pos.y.toFixed(2));
-        });*/"""))
+        });*/"""))*/
   }
 }
 
