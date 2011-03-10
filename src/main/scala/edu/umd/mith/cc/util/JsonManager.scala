@@ -91,7 +91,7 @@ class JsonManager(
   def asMallet: Iterator[String] = {
     this.iterator.flatMap { text =>
       text.documents.iterator.filter { document =>
-        document.plain.trim.length > 64
+        true //document.plain.trim.length > 64
       }.map { document =>
         "%s~%s _ %s".format(text.id, document.id, document.plain.trim.replaceAll("""\s+""", " "))
       }
@@ -122,7 +122,6 @@ class JsonManager(
       val Array(text, document) = fields(1).split("~")
       val v = Array.fill(topics)(0.0)
 
-      //val fs = fields.slice(2, fields.size)
       for (i <- 2 to (fields.size - 1)) {
         if (i % 2 == 0) {
           v(fields(i).toInt) = fields(i + 1).toDouble
@@ -143,8 +142,6 @@ class JsonManager(
 
 object JsonManager {
   def main(args: Array[String]) {
-    //val manager = new JsonManager(args(0))
-    //manager.asMallet.foreach(println(_))
     args(0) match {
       case "echo" => echo(args(1), args(2))
       case "mallet-export" => {
