@@ -22,8 +22,6 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.Printer.pretty 
 
-//case class Doc(title: String, author: String, html: String)
-
 class WoodchipperSerie extends FlotSerie {
   override val points = Full(new FlotPointsOptions {
     override val radius = Full(4)
@@ -36,58 +34,29 @@ class WoodchipperSerie extends FlotSerie {
 class Visualization {
   var textIds: List[Long] = List[Long]()
   var reduced: Option[PCAReduction] = None 
-  //val docs = scala.collection.mutable.Map[(Int, Int), Doc]()
-  //val titles = new scala.collection.mutable.ArrayBuffer[String]
-  //val authors = new scala.collection.mutable.ArrayBuffer[String]
-  //val htmls = new scala.collection.mutable.ArrayBuffer[scala.collection.mutable.ArrayBuffer[String]]
+
   def draw(xhtml: NodeSeq) = {
 
     val colors = List("#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD", "#B0C4DE", "#FFE4C4", "#B22222")
 
     val reducer = new PCAReducer
-    //val matrix = scala.collection.mutable.ArrayBuffer[Array[Double]]()
-    //val colass = scala.collection.mutable.ArrayBuffer[String]()
-
-    //val docs = scala.collection.mutable.Map[(Int, Int), Doc]() 
 
     S.param("texts").foreach { textsParam =>
       val textIds = textsParam.split(",").map(_.trim.toLong)
       selectedTexts(Text.findAll(ByList(Text.id, textIds)))
-      //selectedTexts(textIds.map { textId =>
-      //  Document.findAll(By(Text.id, textId))(0)
-      //})
     }
 
     val sel = selectedTexts.is.map { (text: Text) => (text, Document.findAll(By(Document.text, text.id))) }
     textIds = selectedTexts.is.map { text => text.id.is }
 
-    //val matrix = selectedTexts.is.reverse.map { text =>
-      //titles += text.title.is
-      //authors += text.author.is
-      //htmls += new scala.collection.mutable.ArrayBuffer[String]
-    //  .map { document =>
-    //    matrix += document.features
-      //  htmls(htmls.size - 1) += document.html.is
-
-        //colass += color
-    //  }
-    //}
-
     val matrix = sel.flatMap { _._2.map { _.features } }
-
     reduced = Some(reducer.reduce(matrix.toArray, 2))
     
-    //Script(JsRaw("var eigenvalues = " + pretty(render(JArray(reduced.loadings.map(JDouble(_)).toList))) + ";\n"))
-    //reduced.foreach { _.foreach { println(_) }}
     var i = 0
-    //var ti = 0
     val series = sel.zip(colors).map { case ((text, docs), col) =>
-      //val tj = ti
-      //ti += 1
       val vals = docs.map { doc => //Document.findAll(By(Document.text, text.id)).map { doc =>
         val j = i
         i += 1
-        //docs((tj, j)) = Doc(text.title.is, text.author.is, doc.html.is)
         (reduced.get.data(j)(0), reduced.get.data(j)(1))
       }
 
@@ -119,47 +88,7 @@ class Visualization {
   }
 
   def clicker(xhtml: NodeSeq) = {
-    //implicit val formats = DefaultFormats
-
-    /*val points = docs.map {
-      case Doc(title, author, html) => "[
-    }*/
-    //val json = "var titles = " + pretty(render(JArray(titles.toList.map(JString(_))))) + "; " +
-    //           "var authors = " + pretty(render(JArray(authors.toList.map(JString(_))))) + "; " +
-    //           "var htmls = " + pretty(render(JArray(htmls.toList.map((s: scala.collection.mutable.ArrayBuffer[String]) => JArray(s.toList.map(JString(_))))))) + "; "
-                
-     
-
-    //val json = "var titles  = [" +  titles.map("\"" + _ + "\"").mkString(",") + "];  " +
-    //           "var authors = [" + authors.map("\"" + _ + "\"").mkString(",") + "];  " +
-    //           "var htmls = [" + authors.map("\"" + _ + "\"").mkString(",") + "];  " +
-      
-    /*         jQuery.ajax({
-               url: "drilldown?text=" + item.seriesIndex + "&document=" + item.dataIndex,
-               success: function(data, textStatus, jqXHR) {
-                jQuery('#drilldown').html(data);
-               }
-             })
-    */
-
     Script(JsRaw("var eigenvalues = " + pretty(render(JArray(reduced.get.loadings.map(JDouble(_)).toList))) + ";\nvar textIds = " + pretty(render(JArray(textIds.map(JInt(_))))) + ";\n"))
-    /*  """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
-           if (item) {
-             jQuery('#drilldown').load("drilldown?text=" + textIds[item.seriesIndex] + "&document=" + item.dataIndex);
-
-             //alert(htmls[item.seriesIndex][item.dataIndex]);
-             //jQuery('#drilldown-title').text(titles[item.seriesIndex])
-             //jQuery('#drilldown-author').text(authors[item.seriesIndex])
-             //jQuery('#drilldown').html(htmls[item.seriesIndex][item.dataIndex])
-             //plot_vizmap.highlight(item.series, item.datapoint);
-           }
-
-         });
-
-        /*jQuery("#vizmap").bind("plothover", function (event, pos, item) {
-          jQuery("#x").text(pos.x.toFixed(2));
-          jQuery("#y").text(pos.y.toFixed(2));
-        });*/"""))*/
   }
 }
 
