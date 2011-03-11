@@ -60,7 +60,7 @@ class Visualization {
     })
   }
 
-  def draw(xhtml: NodeSeq) = {
+  def draw(in: NodeSeq): NodeSeq = {
     val reducer = new PCAReducer
 
     S.param("texts").foreach { textsParam =>
@@ -91,11 +91,17 @@ class Visualization {
       }
     }
 
-    Flot.render("vizmap", series, this.options, Flot.script(xhtml))
+    Flot.render("vizmap", series, this.options, Flot.script(in))
   }
 
-  def clicker(xhtml: NodeSeq) = {
-    Script(JsRaw("var eigenvalues = " + pretty(render(JArray(reduced.get.loadings.map(JDouble(_)).toList))) + ";\nvar textIds = " + pretty(render(JArray(textIds.map(JInt(_))))) + ";\n"))
+  implicit def convertLongList(v: List[Long]): JsExp = new JsArray(v.map(Num(_)))
+  implicit def convertDoubleArray(v: Array[Double]) = new JsArray(v.map(Num(_)).toList)
+
+  def clicker(in: NodeSeq): NodeSeq = {
+    Script(
+      JsCrVar("textIds", textIds) &
+      JsCrVar("eigenvalues", reduced.get.loadings)
+    )
   }
 }
 
