@@ -119,7 +119,6 @@ class Visualization {
   def renderData(in: NodeSeq): NodeSeq = {
     Script(
       JsCrVar("textIds", this.texts.map(_._1.id.is))
-      //JsCrVar("eigenvalues", this.reduced.loadings)
     )
   }
 }
