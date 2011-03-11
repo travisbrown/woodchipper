@@ -50,6 +50,13 @@ class Visualization {
 
     //val docs = scala.collection.mutable.Map[(Int, Int), Doc]() 
 
+    S.param("texts").foreach { textsParam =>
+      val textIds = textsParam.split(",").map(_.trim.toLong)
+      selectedTexts(Text.findAll(ByList(Text.id, textIds)))
+      //selectedTexts(textIds.map { textId =>
+      //  Document.findAll(By(Text.id, textId))(0)
+      //})
+    }
 
     val sel = selectedTexts.is.map { (text: Text) => (text, Document.findAll(By(Document.text, text.id))) }
     textIds = selectedTexts.is.map { text => text.id.is }
