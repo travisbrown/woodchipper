@@ -22,7 +22,8 @@ class TestFile(path: String) {
 }
 
 class PCAReduction(
-  val data: Array[Array[Double]]
+  val data: Array[Array[Double]],
+  val loadings: Array[Double]
 ) extends Reduction {
 }
 
@@ -57,7 +58,10 @@ class PCAReducer extends Reducer[PCAReduction] {
     val colsSelected = Math.min(dims, projection.columns)
     val view = projection.viewPart(0, 0, projection.rows, colsSelected)
 
-    new PCAReduction(view.toArray)
+    val evs = evd.getRealEigenvalues
+    val evt = evs.zSum
+
+    new PCAReduction(view.toArray, evs.viewFlip.toArray.map(_ / evt))
   }
 }
 

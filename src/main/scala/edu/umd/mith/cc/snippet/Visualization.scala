@@ -35,6 +35,7 @@ class WoodchipperSerie extends FlotSerie {
 
 class Visualization {
   var textIds: List[Long] = List[Long]()
+  var reduced: Option[PCAReduction] = None 
   //val docs = scala.collection.mutable.Map[(Int, Int), Doc]()
   //val titles = new scala.collection.mutable.ArrayBuffer[String]
   //val authors = new scala.collection.mutable.ArrayBuffer[String]
@@ -67,7 +68,9 @@ class Visualization {
 
     val matrix = sel.flatMap { _._2.map { _.features } }
 
-    val reduced = reducer.reduce(matrix.toArray, 2).data
+    reduced = Some(reducer.reduce(matrix.toArray, 2))
+    
+    //Script(JsRaw("var eigenvalues = " + pretty(render(JArray(reduced.loadings.map(JDouble(_)).toList))) + ";\n"))
     //reduced.foreach { _.foreach { println(_) }}
     var i = 0
     //var ti = 0
@@ -78,7 +81,7 @@ class Visualization {
         val j = i
         i += 1
         //docs((tj, j)) = Doc(text.title.is, text.author.is, doc.html.is)
-        (reduced(j)(0), reduced(j)(1))
+        (reduced.get.data(j)(0), reduced.get.data(j)(1))
       }
 
       new WoodchipperSerie() {
@@ -132,8 +135,7 @@ class Visualization {
              })
     */
 
-
-    Script(JsRaw("var textIds = " + pretty(render(JArray(textIds.map(JInt(_))))) + ";\n"))
+    Script(JsRaw("var eigenvalues = " + pretty(render(JArray(reduced.get.loadings.map(JDouble(_)).toList))) + ";\nvar textIds = " + pretty(render(JArray(textIds.map(JInt(_))))) + ";\n"))
     /*  """jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
            if (item) {
              jQuery('#drilldown').load("drilldown?text=" + textIds[item.seriesIndex] + "&document=" + item.dataIndex);
