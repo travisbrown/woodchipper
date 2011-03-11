@@ -4,9 +4,13 @@
 </head>
   <h2>Map of the documents</h2>
   <div id="viz">
-    <div id="vizmap"></div>
-    <lift:Visualization.draw></lift:Visualization.draw>
-    <lift:Visualization.clicker></lift:Visualization.clicker>
+    <div id="vizdata">
+      <div id="vizmap"></div>
+      <div id="vizvariances"></div>
+    </div>
+    <lift:Visualization.drawMap></lift:Visualization.drawMap>
+    <lift:Visualization.drawVariances></lift:Visualization.drawVariances>
+    <lift:Visualization.renderData></lift:Visualization.renderData>
     <script type="text/javascript">
 // <![CDATA[
       var loadDocument = function(event, pos, item) {

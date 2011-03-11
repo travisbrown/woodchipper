@@ -1,5 +1,4 @@
-package edu.umd.mith.cc {
-package snippet {
+package edu.umd.mith.cc.snippet
 
 import _root_.scala.xml.NodeSeq
 import _root_.net.liftweb.http._
@@ -22,13 +21,24 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.Printer.pretty 
 
-class WoodchipperSerie extends FlotSerie {
+class MapSerie extends FlotSerie {
   override val points = Full(new FlotPointsOptions {
     override val radius = Full(4)
     override val show = Full(true)
   })
   override val lines = Full(new FlotLinesOptions {
     override val show = Full(false)
+  })
+  override val shadowSize = Full(8)
+}
+
+class VariancesSerie extends FlotSerie {
+  override val points = Full(new FlotPointsOptions {
+    override val radius = Full(4)
+    override val show = Full(true)
+  })
+  override val lines = Full(new FlotLinesOptions {
+    override val show = Full(true)
   })
   override val shadowSize = Full(8)
 }
@@ -63,13 +73,15 @@ class Visualization {
     selectedTexts(Text.findAll(ByList(Text.id, texts.split(",").map(_.trim.toLong))))
   }
 
-  val texts = selectedTexts.is.map { text => (text, Document.findAll(By(Document.text, text.id))) }
+  val texts = selectedTexts.is.map { text =>
+    (text, Document.findAll(By(Document.text, text.id)))
+  }
 
   val matrix = texts.flatMap { _._2.map { _.features } }
   val reducer = new PCAReducer
   val reduced = this.reducer.reduce(matrix.toArray, 10)
     
-  def draw(in: NodeSeq): NodeSeq = {
+  def drawMap(in: NodeSeq): NodeSeq = {
     val (pcaX, pcaY) = S.param("pcs").map { pcasParam => 
       val pcas = pcasParam.split(",").map(_.trim.toInt)
       (pcas(0) - 1, pcas(1) - 1)
@@ -77,29 +89,38 @@ class Visualization {
 
     var i = 0
     val series = this.texts.zip(colors).map { case ((text, docs), col) =>
+      val shortenedTitle = text.title.is.substring(0, Math.min(this.maxKeyTitleLength, text.title.is.length)) + "..."
+
       val vals = this.reduced.data.slice(i, i + docs.size)
       i += docs.size
 
-      new WoodchipperSerie() {
+      new MapSerie() {
         override val data = vals.toList.map(coords => (coords(pcaX), coords(pcaY)))
         override val color = Full(Left(col))
-        override val label = Full(text.title.is.substring(0, Math.min(this.maxKeyTitleLength, text.title.is.length)) + "...")
+        override val label = Full(shortenedTitle)
       }
     }
 
     Flot.render("vizmap", series, this.options, Flot.script(in))
   }
 
-  implicit def convertLongList(v: List[Long]): JsExp = new JsArray(v.map(Num(_)))
+  def drawVariances(in: NodeSeq): NodeSeq = {
+    val serie = new VariancesSerie() {
+      override val data = Visualization.this.reduced.variances.slice(0, 10).toList.zipWithIndex.map { case (v, i) => ((i + 1).toDouble, v) }
+      //override val color = Full(Left("#FF6347"))
+      override val label = Full("Variance per component")
+    }
+    Flot.render("vizvariances", List(serie), new FlotOptions {}, Flot.script(in))
+  }
+
+  implicit def convertLongList(v: List[Long]) = new JsArray(v.map(Num(_)))
   implicit def convertDoubleArray(v: Array[Double]) = new JsArray(v.map(Num(_)).toList)
 
-  def clicker(in: NodeSeq): NodeSeq = {
+  def renderData(in: NodeSeq): NodeSeq = {
     Script(
-      JsCrVar("textIds", this.texts.map(_._1.id.is)) &
-      JsCrVar("eigenvalues", this.reduced.loadings)
+      JsCrVar("textIds", this.texts.map(_._1.id.is))
+      //JsCrVar("eigenvalues", this.reduced.loadings)
     )
   }
 }
 
-}
-}

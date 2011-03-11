@@ -23,7 +23,7 @@ class TestFile(path: String) {
 
 class PCAReduction(
   val data: Array[Array[Double]],
-  val loadings: Array[Double]
+  val variances: Array[Double]
 ) extends Reduction {
 }
 
