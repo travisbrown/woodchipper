@@ -27,7 +27,9 @@ class WoodchipperSerie extends FlotSerie {
     override val radius = Full(4)
     override val show = Full(true)
   })
-  override val lines = Full(new FlotLinesOptions { override val show = Full(false) })
+  override val lines = Full(new FlotLinesOptions {
+    override val show = Full(false)
+  })
   override val shadowSize = Full(8)
 }
 
@@ -35,10 +37,30 @@ class Visualization {
   var textIds: List[Long] = List[Long]()
   var reduced: Option[PCAReduction] = None 
 
+  val colors = List("#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD",
+                    "#B0C4DE", "#FFE4C4", "#B22222")
+
+  val (minX, maxX) = (-0.4, 0.4)
+  val (minY, maxY) = (minX, maxX)
+
+  val options = new FlotOptions {
+    override val grid = Full(new FlotGridOptions {
+      override val hoverable = Full(true)
+      override val clickable = Full(true)
+    })
+
+    override val xaxis = Full(new FlotAxisOptions {
+      override val min = Full(Visualization.this.minX)
+      override val max = Full(Visualization.this.maxX)
+    })
+
+    override val yaxis = Full(new FlotAxisOptions {
+      override val min = Full(Visualization.this.minY)
+      override val max = Full(Visualization.this.maxY)
+    })
+  }
+
   def draw(xhtml: NodeSeq) = {
-
-    val colors = List("#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD", "#B0C4DE", "#FFE4C4", "#B22222")
-
     val reducer = new PCAReducer
 
     S.param("texts").foreach { textsParam =>
@@ -54,37 +76,17 @@ class Visualization {
     
     var i = 0
     val series = sel.zip(colors).map { case ((text, docs), col) =>
-      val vals = docs.map { doc => //Document.findAll(By(Document.text, text.id)).map { doc =>
-        val j = i
-        i += 1
-        (reduced.get.data(j)(0), reduced.get.data(j)(1))
-      }
+      val vals = reduced.get.data.slice(i, i + docs.size)
+      i += docs.size
 
       new WoodchipperSerie() {
-        override val data = vals
+        override val data = vals.toList.map(coords => (coords(0), coords(1)))
         override val color = Full(Left(col))
         override val label = Full(text.title.is.substring(0, Math.min(60, text.title.is.length)) + "...")
       }
     }
 
-    val options = new FlotOptions {
-      override val grid = Full(new FlotGridOptions {
-        override val hoverable = Full(true)
-        override val clickable = Full(true)
-      })
-
-      override val xaxis = Full(new FlotAxisOptions {
-        override val min = Full(-0.4)
-        override val max = Full(0.4)
-      })
-
-      override val yaxis = Full(new FlotAxisOptions {
-        override val min = Full(-0.4)
-        override val max = Full(0.4)
-      })
-    }
-
-    Flot.render("vizmap", series, options, Flot.script(xhtml))
+    Flot.render("vizmap", series, this.options, Flot.script(xhtml))
   }
 
   def clicker(xhtml: NodeSeq) = {
