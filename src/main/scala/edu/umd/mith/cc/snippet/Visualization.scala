@@ -34,11 +34,10 @@ class WoodchipperSerie extends FlotSerie {
 }
 
 class Visualization {
-  var textIds: List[Long] = List[Long]()
-  var reduced: Option[PCAReduction] = None 
-
   val colors = List("#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD",
                     "#B0C4DE", "#FFE4C4", "#B22222")
+
+  val maxKeyTitleLength = 60
 
   val (minX, maxX) = (-0.4, 0.4)
   val (minY, maxY) = (minX, maxX)
@@ -60,34 +59,31 @@ class Visualization {
     })
   }
 
+  S.param("texts").foreach { texts =>
+    selectedTexts(Text.findAll(ByList(Text.id, texts.split(",").map(_.trim.toLong))))
+  }
+
+  val texts = selectedTexts.is.map { text => (text, Document.findAll(By(Document.text, text.id))) }
+
+  val matrix = texts.flatMap { _._2.map { _.features } }
+  val reducer = new PCAReducer
+  val reduced = this.reducer.reduce(matrix.toArray, 10)
+    
   def draw(in: NodeSeq): NodeSeq = {
-    val reducer = new PCAReducer
-
-    S.param("texts").foreach { textsParam =>
-      val textIds = textsParam.split(",").map(_.trim.toLong)
-      selectedTexts(Text.findAll(ByList(Text.id, textIds)))
-    }
-
     val (pcaX, pcaY) = S.param("pcs").map { pcasParam => 
       val pcas = pcasParam.split(",").map(_.trim.toInt)
       (pcas(0) - 1, pcas(1) - 1)
     }.openOr((0, 1))
 
-    val sel = selectedTexts.is.map { (text: Text) => (text, Document.findAll(By(Document.text, text.id))) }
-    textIds = selectedTexts.is.map { text => text.id.is }
-
-    val matrix = sel.flatMap { _._2.map { _.features } }
-    reduced = Some(reducer.reduce(matrix.toArray, 10))
-    
     var i = 0
-    val series = sel.zip(colors).map { case ((text, docs), col) =>
-      val vals = reduced.get.data.slice(i, i + docs.size)
+    val series = this.texts.zip(colors).map { case ((text, docs), col) =>
+      val vals = this.reduced.data.slice(i, i + docs.size)
       i += docs.size
 
       new WoodchipperSerie() {
         override val data = vals.toList.map(coords => (coords(pcaX), coords(pcaY)))
         override val color = Full(Left(col))
-        override val label = Full(text.title.is.substring(0, Math.min(60, text.title.is.length)) + "...")
+        override val label = Full(text.title.is.substring(0, Math.min(this.maxKeyTitleLength, text.title.is.length)) + "...")
       }
     }
 
@@ -99,8 +95,8 @@ class Visualization {
 
   def clicker(in: NodeSeq): NodeSeq = {
     Script(
-      JsCrVar("textIds", textIds) &
-      JsCrVar("eigenvalues", reduced.get.loadings)
+      JsCrVar("textIds", this.texts.map(_._1.id.is)) &
+      JsCrVar("eigenvalues", this.reduced.loadings)
     )
   }
 }
