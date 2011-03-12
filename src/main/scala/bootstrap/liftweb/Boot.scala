@@ -69,7 +69,7 @@ class Boot {
     def sitemap() = SiteMap(
       Menu.i("Home") / "index" >> User.AddUserMenusAfter, // Simple menu form
       Menu.i("Search") / "search",
-      Menu.i("Viz") / "viz",
+      Menu.i("Viz") / "viz" >> Hidden,
       Menu.i("Remove") / "remove" >> Hidden,
       Menu.i("Add") / "add" >> Hidden,
       Menu.i("Drilldown") / "drilldown" >> Hidden
