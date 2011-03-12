@@ -1,52 +1,72 @@
 <div id="pca-viz">
-  <div id="pca-viz-map"></div>
-  <div id="pca-viz-variance"></div>
+<head>
+  <script id="jquery" src="/classpath/jquery.js" type="text/javascript"/>
+</head>
+  <div id="pca-viz-map" style="width: 500px; height: 500px;"></div>
+  <div id="pca-viz-variance" style="width: 500px; height: 100px;"></div>
   <lift:PCAViz.renderData></lift:PCAViz.renderData>
   <script type="text/javascript">
 // <![CDATA[
+    var pca_viz_pcX = 0;
+    var pca_viz_pcY = 1;
+
+    var flot_point_radius = 4;
+    var flot_shadow_size = 8;
+
     var pca_viz_colors = [
       "#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD",
       "#B0C4DE", "#FFE4C4", "#B22222"
     ];
 
+    var pca_viz_variance = {
+      "label": "Variance per component",
+      "lines": { "show": true },
+      "points": { "radius": flot_point_radius, "show": true },
+      "shadowSize": flot_shadow_size,
+      "data": pca_result.variance
+    }
 
+    function pca_viz_plot_variance() {
+      jQuery("#pca-viz-variance").addClass("flot_lww");
+      jQuery("#pca-viz-variance").show();
 
-      var loadDocument = function(event, pos, item) {
-        if (item) {
-          jQuery.getJSON('api/text/' + textIds[item.seriesIndex] + '/' + item.dataIndex + '.json', function(data) {
-            jQuery('#drilldown-title').text(data.text.title + ' (' + data.document.seq + ')');
-            jQuery('#drilldown-author').text(data.text.author + ' (' + data.text.year + ')');
-            jQuery('#drilldown-text').html(data.document.html);
-          });
-        }
-      };
-
-      var bindHover = function() {
-        jQuery("#vizmap").bind("plothover", function (event, pos, item) {
-          if (item) {
-            loadDocument(event, pos, item);
-            jQuery('#vizmap').unbind();
-            setTimeout(bindBoth, 500);
-          }
-        });
+      var pcX_variance = {
+        "label": "Component used for first dimension",
+        "lines": { "show": true },
+        "points": { "radius": flot_point_radius, "show": true },
+        "shadowSize": flot_shadow_size,
+        "color": "#990055",
+        "data": [ pca_result.variance[pca_viz_pcX] ];
       }
 
-      var bindClick = function() {
-        jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
-          if (item) {
-            loadDocument(event, pos, item);
-            jQuery('#vizmap').unbind();
-            setTimeout(bindBoth, 3000);
-          }
-        });
-      };
+      var pcY_variance = {
+        "label": "Component used for second dimension",
+        "lines": { "show": true },
+        "points": { "radius": flot_point_radius, "show": true },
+        "shadowSize": flot_shadow_size,
+        "color": "#00DDFF",
+        "data": [ pca_result.variance[pca_viz_pcY] ];
+      }
 
-      var bindBoth = function() {
-        bindHover();
-        bindClick();
-      };
+      jQuery.plot(jQuery("#pca-viz-variance"), [pca_viz_variance, pcX_variance, pcY_variance], {});
+    }
 
-      bindBoth();
+    jQuery(document).ready(function() { pca_viz_plot_variance();; });
+
+    jQuery("#pca-viz-variance").bind("plotclick", function (event, pos, item) {
+      if (item) {
+        if (item.seriesIndex == 0)
+          pca_viz_pcX = pca_viz_pcY;
+          pca_viz_pcY = item.dataIndex;
+        } else {
+          var tmp = pca_viz_pcX;
+          pca_viz_pcX = pca_viz_pcY;
+          pca_viz_pcY = tmp;
+        }
+        pca_viz_plot_variance();
+      }
+    });
+
 // ]]>
   </script>
 </div>

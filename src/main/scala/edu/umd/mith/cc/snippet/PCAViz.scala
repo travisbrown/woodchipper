@@ -41,16 +41,17 @@ trait PCAResult {
   def n = this.data.length
   def m = this.variance(0).length
   def precision: Int = 6
+  def view: ((Double, Double), (Double, Double)) = ((-0.4, 0.4), (-0.4, 0.4))
 
   assert(this.data.length > 0)
   assert(this.data(0).length == this.variance.length)
   assert(this.variance.length == this.loadings.length)
 
-  implicit def convertDouble1DArray(v: Array[Double]) = {
+  def convertDouble1DArray(v: Array[Double]): JsExp = {
     new JsArray(v.map(JsCompactDouble(_, this.precision)).toList)
   }
 
-  implicit def convertDouble2DArray(v: Array[Array[Double]]) = {
+  def convertDouble2DArray(v: Array[Array[Double]]): JsExp = {
     new JsArray(v.map {
       r => new JsArray(r.map(JsCompactDouble(_, this.precision)).toList)
     }.toList)
@@ -59,11 +60,32 @@ trait PCAResult {
   def renderData(in: NodeSeq): NodeSeq = {
     Script(
       JsCrVar("pca_result", JsObj(
-        "data" -> this.data,
-        "variance" -> this.variance,
-        "loadings" -> this.loadings
+        "view" -> JsObj("xaxis" -> JsObj("min" -> this.view._1._1, "max" -> this.view._1._2),
+                        "yaxis" -> JsObj("min" -> this.view._2._1, "max" -> this.view._2._2)),
+        "data" -> this.convertDouble2DArray(this.data),
+        "variance" -> this.convertDouble1DArray(this.variance),
+        "loadings" -> this.convertDouble2DArray(this.loadings)
       ))
     )
   }
+}
+
+class PCAViz {
+  S.param("texts").foreach { texts =>
+    selectedTexts(Text.findAll(ByList(Text.id, texts.split(",").map(_.trim.toLong))))
+  }
+
+  val texts = selectedTexts.is.map { text =>
+    (text, Document.findAll(By(Document.text, text.id)))
+  }
+
+  val matrix = texts.flatMap { _._2.map { _.features } }
+  val reducer = new PCAReducer
+  val reduced = this.reducer.reduce(matrix.toArray, 10)
+
+  def data = reduced.data
+  def variance = reduced.variance
+  def loadings = reduced.loadings
+
 }
 

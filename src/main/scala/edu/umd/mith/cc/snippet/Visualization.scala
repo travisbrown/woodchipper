@@ -106,7 +106,7 @@ class Visualization {
 
   def drawVariances(in: NodeSeq): NodeSeq = {
     val serie = new VariancesSerie() {
-      override val data = Visualization.this.reduced.variances.slice(0, 10).toList.zipWithIndex.map { case (v, i) => ((i + 1).toDouble, v) }
+      override val data = Visualization.this.reduced.variance.slice(0, 10).toList.zipWithIndex.map { case (v, i) => ((i + 1).toDouble, v) }
       //override val color = Full(Left("#FF6347"))
       override val label = Full("Variance per component")
     }
