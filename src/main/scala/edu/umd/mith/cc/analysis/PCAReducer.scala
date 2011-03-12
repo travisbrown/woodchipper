@@ -57,12 +57,14 @@ class PCAReducer extends Reducer[PCAReduction] {
     //val projection: DoubleMatrix2D = this.algebra.mult(matrix, evd.getV).assign(Functions.abs).viewColumnFlip
 
     val colsSelected = Math.min(dims, projection.columns)
-    val view = projection.viewPart(0, 0, projection.rows, colsSelected)
+    val dataView = projection.viewPart(0, 0, projection.rows, colsSelected)
 
     val evs = evd.getRealEigenvalues
     val evt = evs.zSum
 
-    new PCAReduction(view.toArray, evs.viewFlip.toArray.map(_ / evt), Array[Array[Double]]())
+    val varianceView = evs.viewFlip.viewPart(0, colsSelected)
+
+    new PCAReduction(dataView.toArray, varianceView.toArray.map(_ / evt), Array[Array[Double]]())
   }
 }
 

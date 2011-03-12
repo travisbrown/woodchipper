@@ -1,9 +1,9 @@
-<div id="pca-viz">
+<div id="pca-viz" style="clear: both;">
 <head>
   <script id="jquery" src="/classpath/jquery.js" type="text/javascript"/>
 </head>
   <div id="pca-viz-map" style="width: 500px; height: 500px;"></div>
-  <div id="pca-viz-variance" style="width: 500px; height: 100px;"></div>
+  <div id="pca-viz-variance" style="width: 500px; height: 180px;"></div>
   <lift:PCAViz.renderData></lift:PCAViz.renderData>
   <script type="text/javascript">
 // <![CDATA[
@@ -18,52 +18,90 @@
       "#B0C4DE", "#FFE4C4", "#B22222"
     ];
 
+    function pca_viz_plot_map() {
+      var series = [];
+      for (var i = 0; i < pca_viz.names.length; i++) {
+        var start = pca_viz.breaks[i];
+        var end = pca_viz.breaks[i + 1];
+        var data = new Array(end - start);
+        for (var j = start; j < end; j++) {
+          data[j] = [
+            pca_viz.data[j][pca_viz_pcX],
+            pca_viz.data[j][pca_viz_pcY]
+          ];
+        }
+
+        series.push({
+          "label": pca_viz.names[i], 
+          "lines": { "show": false },
+          "points": {"radius": flot_point_radius, "show": true },
+          "shadowSize": flot_shadow_size,
+          "color": pca_viz_colors[i],
+          "data": data
+        });
+      }
+
+      var options = jQuery.extend(pca_viz.view, {
+        "grid": {"clickable": true, "hoverable": true }
+      });
+
+      jQuery.plot(jQuery("#pca-viz-map"), series, options);
+    }
+
+    jQuery("#pca-viz-map").addClass("flot_lww");
+    jQuery("#pca-viz-map").show();
+
+    jQuery(document).ready(function() { pca_viz_plot_map();; });
+
     var pca_viz_variance = {
-      "label": "Variance per component",
+      "label": "Variance for component",
       "lines": { "show": true },
       "points": { "radius": flot_point_radius, "show": true },
       "shadowSize": flot_shadow_size,
-      "data": pca_result.variance
-    }
+      "data": pca_viz.variance
+    };
 
     function pca_viz_plot_variance() {
-      jQuery("#pca-viz-variance").addClass("flot_lww");
-      jQuery("#pca-viz-variance").show();
-
       var pcX_variance = {
-        "label": "Component used for first dimension",
-        "lines": { "show": true },
+        "label": "Component used for first dimension (x axis)",
+        "lines": { "show": false },
         "points": { "radius": flot_point_radius, "show": true },
         "shadowSize": flot_shadow_size,
         "color": "#990055",
-        "data": [ pca_result.variance[pca_viz_pcX] ];
-      }
+        "data": [ pca_viz.variance[pca_viz_pcX] ]
+      };
 
       var pcY_variance = {
-        "label": "Component used for second dimension",
-        "lines": { "show": true },
+        "label": "Component used for second dimension (y axis)",
+        "lines": { "show": false },
         "points": { "radius": flot_point_radius, "show": true },
         "shadowSize": flot_shadow_size,
         "color": "#00DDFF",
-        "data": [ pca_result.variance[pca_viz_pcY] ];
-      }
+        "data": [ pca_viz.variance[pca_viz_pcY] ]
+      };
 
-      jQuery.plot(jQuery("#pca-viz-variance"), [pca_viz_variance, pcX_variance, pcY_variance], {});
+      var options = { "grid": {"clickable": true, "hoverable": true } };
+
+      jQuery.plot(jQuery("#pca-viz-variance"), [pca_viz_variance, pcX_variance, pcY_variance], options);
     }
+
+    jQuery("#pca-viz-variance").addClass("flot_lww");
+    jQuery("#pca-viz-variance").show();
 
     jQuery(document).ready(function() { pca_viz_plot_variance();; });
 
     jQuery("#pca-viz-variance").bind("plotclick", function (event, pos, item) {
       if (item) {
-        if (item.seriesIndex == 0)
-          pca_viz_pcX = pca_viz_pcY;
-          pca_viz_pcY = item.dataIndex;
+        if (item.seriesIndex == 0) {
+          pca_viz_pcY = pca_viz_pcX;
+          pca_viz_pcX = item.dataIndex;
         } else {
           var tmp = pca_viz_pcX;
           pca_viz_pcX = pca_viz_pcY;
           pca_viz_pcY = tmp;
         }
         pca_viz_plot_variance();
+        pca_viz_plot_map();
       }
     });
 

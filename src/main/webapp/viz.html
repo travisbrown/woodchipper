@@ -1,15 +1,16 @@
 <lift:surround with="default" at="content">
 <head>
   <script id="jquery" src="/classpath/jquery.js" type="text/javascript"/>
+  <script src="/classpath/flot/jquery.flot.js" type="text/javascript"/>
 </head>
   <h2>Map of the documents</h2>
   <div id="viz">
     <div id="vizdata">
       <div id="vizmap"></div>
-      <div id="vizvariances"></div>
+      <!--<div id="vizvariances"></div>-->
     </div>
     <lift:Visualization.drawMap></lift:Visualization.drawMap>
-    <lift:Visualization.drawVariances></lift:Visualization.drawVariances>
+    <!--<lift:Visualization.drawVariances></lift:Visualization.drawVariances>-->
     <lift:Visualization.renderData></lift:Visualization.renderData>
     <script type="text/javascript">
 // <![CDATA[
@@ -57,5 +58,6 @@
       <div id="drilldown-text"></div>
     </div>
   </div>
+  <lift:embed what="pca"/>
 </lift:surround>
 
