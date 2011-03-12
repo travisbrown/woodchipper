@@ -83,7 +83,7 @@ class CCURLBuilder extends URLBuilder {
     collection match {
       case "hathi" => {
         val encodedId = URLEncoder.encode(textId, "ASCII")
-        "http://babel.hathitrust.org/cgi/pt?seq=146&view=image&size=100&id=%s&u=1&num=%d".format(encodedId, chunkId.toInt)
+        "http://babel.hathitrust.org/cgi/pt?view=image&size=100&id=%s&u=1&num=%d".format(encodedId, chunkId.toInt)
       }
       case "perseus" => {
         throw new Exception("Cannot create URLs for Perseus.")

@@ -64,6 +64,10 @@ class PCAViz {
     }.toList)
   }
 
+  private def shortenTitle(title: String) = {
+    title.substring(0, Math.min(60, title.length)) + "..."
+  }
+
   def renderData(in: NodeSeq): NodeSeq = {
     S.param("texts").foreach { texts =>
       selectedTexts(Text.findAll(ByList(Text.id, texts.split(",").map(_.trim.toLong))))
@@ -71,11 +75,6 @@ class PCAViz {
 
     val texts = selectedTexts.is.map { text =>
       (text, Document.findAll(By(Document.text, text.id)))
-    }
-
-    val titles = texts.map { case (text, _) =>
-      val title = text.title.is
-      title.substring(0, Math.min(60, title.length)) + "..."
     }
     
     val breaks = texts.map(_._2.size).foldLeft[List[Int]](List(0)) {
@@ -92,7 +91,12 @@ class PCAViz {
 
     Script(
       JsCrVar("pca_viz", JsObj(
-        "names" -> new JsArray(titles.map(Str(_))),
+        "items" -> new JsArray(texts.map { case (text, documents) => JsObj(
+          "id" -> Num(text.id.is),
+          "name" -> Str(this.shortenTitle(text.title)),
+          "uid" -> Str(text.uid.is),
+          "documents" -> new JsArray(documents.map { document => Str(document.uid.is) })
+        )}),
         "breaks" -> new JsArray(breaks.map(Num(_))),
         "data" -> this.convertDouble2DArray(data),
         "variance" -> this.convertDouble1DArrayWithIndex(variance),

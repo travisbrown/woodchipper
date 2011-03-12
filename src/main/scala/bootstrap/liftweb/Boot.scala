@@ -15,14 +15,19 @@ import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConn
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.edu.umd.mith.cc.model._
 import net.liftweb.widgets.flot._
+import edu.umd.mith.cc.util.CCURLBuilder
 
 object WoodchipperRest extends RestHelper {
+  val urlBuilder = new CCURLBuilder
+
   serve {
     case Req("api" :: "text" :: textId :: docSeqId :: _, "json", GetRequest) => {
       val text = Text.findAll(By(Text.id, textId.toLong))(0)
       val doc = Document.findAll(By(Document.text, text.id))(docSeqId.toInt)
       ("text" -> ("title" -> text.title.is) ~ ("author" -> text.author.is) ~ ("year" -> text.year.is)) ~
-      ("document" -> ("seq" -> doc.uid.is) ~ ("html" -> scala.xml.Utility.escape(doc.plain.is).replaceAll("\n", "<br />")))
+      ("document" -> ("seq" -> doc.uid.is) ~
+                     ("html" -> scala.xml.Utility.escape(doc.plain.is).replaceAll("\n", "<br />")) ~
+                     ("url" -> urlBuilder.buildChunkURL(text.collectionName, text.uid.is, doc.uid.is)))
     }
   }
 }

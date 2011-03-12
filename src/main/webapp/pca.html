@@ -1,10 +1,7 @@
-<div id="pca-viz" style="clear: both;">
-<head>
-  <script id="jquery" src="/classpath/jquery.js" type="text/javascript"/>
-</head>
-  <div id="pca-viz-map" style="width: 500px; height: 500px;"></div>
-  <div id="pca-viz-variance" style="width: 500px; height: 180px;"></div>
-  <lift:PCAViz.renderData></lift:PCAViz.renderData>
+<div id="pca-viz">
+  <div id="pca-viz-map"/>
+  <div id="pca-viz-variance"/>
+  <lift:PCAViz.renderData/>
   <script type="text/javascript">
 // <![CDATA[
     var pca_viz_pcX = 0;
@@ -20,19 +17,19 @@
 
     function pca_viz_plot_map() {
       var series = [];
-      for (var i = 0; i < pca_viz.names.length; i++) {
+      for (var i = 0; i < pca_viz.items.length; i++) {
         var start = pca_viz.breaks[i];
         var end = pca_viz.breaks[i + 1];
         var data = new Array(end - start);
         for (var j = start; j < end; j++) {
-          data[j] = [
+          data[j - start] = [
             pca_viz.data[j][pca_viz_pcX],
             pca_viz.data[j][pca_viz_pcY]
           ];
         }
 
         series.push({
-          "label": pca_viz.names[i], 
+          "label": pca_viz.items[i].name, 
           "lines": { "show": false },
           "points": {"radius": flot_point_radius, "show": true },
           "shadowSize": flot_shadow_size,

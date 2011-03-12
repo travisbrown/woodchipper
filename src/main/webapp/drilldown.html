@@ -1,8 +1,49 @@
-<lift:DrilldownSnippet.render>
-<div>
-  <h3 id="drilldown-title"><text:title/></h3>
-  <h4 id="drilldown-author"><text:author/></h4>
-  <div id="drilldown-text"><text:content/></div>
+<div id="drilldown">
+  <h3 id="drilldown-title"></h3>
+  <h4 id="drilldown-author"></h4>
+  <div><a id="drilldown-link"></a></div>
+  <div id="drilldown-text"></div>
+  <script type="text/javascript">
+// <![CDATA[
+    var loadDocument = function(event, pos, item) {
+      if (item) {
+        jQuery.getJSON('api/text/' + pca_viz.items[item.seriesIndex].id + '/' + item.dataIndex + '.json', function(data) {
+          jQuery('#drilldown-title').text(data.text.title + ' (' + data.document.seq + ')');
+          jQuery('#drilldown-author').text(data.text.author + ' (' + data.text.year + ')');
+          jQuery('#drilldown-link').text("Visit source collection");
+          jQuery('#drilldown-link').attr("href", data.document.url);
+          jQuery('#drilldown-text').html(data.document.html);
+        });
+      }
+    };
+
+    var bindHover = function() {
+      jQuery("#pca-viz-map").bind("plothover", function (event, pos, item) {
+        if (item) {
+          loadDocument(event, pos, item);
+          jQuery('#pca-viz-map').unbind();
+          setTimeout(bindBoth, 250);
+        }
+      });
+    }
+
+    var bindClick = function() {
+      jQuery("#pca-viz-map").bind("plotclick", function (event, pos, item) {
+        if (item) {
+          loadDocument(event, pos, item);
+          jQuery('#pca-viz-map').unbind();
+          setTimeout(bindBoth, 3000);
+        }
+      });
+    };
+
+    var bindBoth = function() {
+      bindHover();
+      bindClick();
+    };
+
+    bindBoth();
+// ]]>
+    </script>
 </div>
-</lift:DrilldownSnippet.render>
 
