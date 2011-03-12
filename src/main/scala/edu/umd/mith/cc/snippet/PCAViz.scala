@@ -33,18 +33,36 @@ object JsCompactDouble {
   }
 }
 
-class PCAViz {
+trait PCAResult {
+  def data: Array[Array[Double]] 
+  def variance: Array[Double]
+  def loadings: Array[Array[Double]]
+  def k: Int = this.variance.length
+  def n = this.data.length
+  def m = this.variance(0).length
   def precision: Int = 6
+
+  assert(this.data.length > 0)
+  assert(this.data(0).length == this.variance.length)
+  assert(this.variance.length == this.loadings.length)
+
+  implicit def convertDouble1DArray(v: Array[Double]) = {
+    new JsArray(v.map(JsCompactDouble(_, this.precision)).toList)
+  }
 
   implicit def convertDouble2DArray(v: Array[Array[Double]]) = {
     new JsArray(v.map {
-      r => new JsArray(r.map(new JsCompactDouble(_, this.precision)).toList)
+      r => new JsArray(r.map(JsCompactDouble(_, this.precision)).toList)
     }.toList)
   }
 
   def renderData(in: NodeSeq): NodeSeq = {
     Script(
-      JsCrVar("textIds", "")
+      JsCrVar("pca_result", JsObj(
+        "data" -> this.data,
+        "variance" -> this.variance,
+        "loadings" -> this.loadings
+      ))
     )
   }
 }

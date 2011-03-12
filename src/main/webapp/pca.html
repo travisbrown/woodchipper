@@ -1,0 +1,53 @@
+<div id="pca-viz">
+  <div id="pca-viz-map"></div>
+  <div id="pca-viz-variance"></div>
+  <lift:PCAViz.renderData></lift:PCAViz.renderData>
+  <script type="text/javascript">
+// <![CDATA[
+    var pca_viz_colors = [
+      "#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD",
+      "#B0C4DE", "#FFE4C4", "#B22222"
+    ];
+
+
+
+      var loadDocument = function(event, pos, item) {
+        if (item) {
+          jQuery.getJSON('api/text/' + textIds[item.seriesIndex] + '/' + item.dataIndex + '.json', function(data) {
+            jQuery('#drilldown-title').text(data.text.title + ' (' + data.document.seq + ')');
+            jQuery('#drilldown-author').text(data.text.author + ' (' + data.text.year + ')');
+            jQuery('#drilldown-text').html(data.document.html);
+          });
+        }
+      };
+
+      var bindHover = function() {
+        jQuery("#vizmap").bind("plothover", function (event, pos, item) {
+          if (item) {
+            loadDocument(event, pos, item);
+            jQuery('#vizmap').unbind();
+            setTimeout(bindBoth, 500);
+          }
+        });
+      }
+
+      var bindClick = function() {
+        jQuery("#vizmap").bind("plotclick", function (event, pos, item) {
+          if (item) {
+            loadDocument(event, pos, item);
+            jQuery('#vizmap').unbind();
+            setTimeout(bindBoth, 3000);
+          }
+        });
+      };
+
+      var bindBoth = function() {
+        bindHover();
+        bindClick();
+      };
+
+      bindBoth();
+// ]]>
+  </script>
+</div>
+
