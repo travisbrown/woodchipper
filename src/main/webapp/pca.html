@@ -38,9 +38,13 @@
         });
       }
 
-      var options = jQuery.extend(pca_viz.view, {
-        "grid": {"clickable": true, "hoverable": true }
-      });
+      var options = {//jQuery.extend(pca_viz.view, {
+        "grid": { "clickable": true, "hoverable": true },
+        "xaxis": { "zoomRange": [0.1, 2], "panRange": [-1, 1] },
+        "yaxis": { "zoomRange": [0.1, 2], "panRange": [-1, 1] },
+        "zoom": { "interactive": true },
+        "pan": { "interactive": true }
+      };
 
       jQuery.plot(jQuery("#pca-viz-map"), series, options);
     }

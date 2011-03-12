@@ -3,6 +3,7 @@ package bootstrap.liftweb
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
+import _root_.net.liftweb.http.ResourceServer
 import _root_.net.liftweb.http.rest._
 import _root_.net.liftweb.http.provider._
 import _root_.net.liftweb.json.JsonAST._
@@ -54,6 +55,11 @@ class Boot {
     Flot.init
     //LiftRules.htmlProperties.default.set((r: Req) =>
     //  new Html5Properties(r.userAgent))
+
+    ResourceServer.allow({
+      case "flot" :: "jquery.flot.navigate.js" :: Nil => true
+      case "flot" :: "jquery.flot.pie.js" :: Nil => true
+    })
 
     // where to search snippet
     LiftRules.addToPackages("edu.umd.mith.cc")

@@ -21,7 +21,7 @@
       jQuery("#pca-viz-map").bind("plothover", function (event, pos, item) {
         if (item) {
           loadDocument(event, pos, item);
-          jQuery('#pca-viz-map').unbind();
+          jQuery('#pca-viz-map').unbind('plothover');
           setTimeout(bindBoth, 250);
         }
       });
@@ -31,7 +31,7 @@
       jQuery("#pca-viz-map").bind("plotclick", function (event, pos, item) {
         if (item) {
           loadDocument(event, pos, item);
-          jQuery('#pca-viz-map').unbind();
+          jQuery('#pca-viz-map').unbind('plothover');
           setTimeout(bindBoth, 3000);
         }
       });
