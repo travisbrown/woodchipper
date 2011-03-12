@@ -63,7 +63,7 @@ class Boot {
 
     // where to search snippet
     LiftRules.addToPackages("edu.umd.mith.cc")
-    Schemifier.schemify(true, Schemifier.infoF _, User, Collection, Text, Document, Feature)
+    Schemifier.schemify(true, Schemifier.infoF _, User, Collection, Text, Document, Feature, Topic, Word, TopicWord)
 
     // Build SiteMap
     def sitemap() = SiteMap(
