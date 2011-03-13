@@ -60,7 +60,7 @@
     jQuery(document).ready(function() { pca_viz_plot_map();; });
 
     var pca_viz_variance = {
-      "label": "Variance for component",
+      //"label": "Variance for component",
       "lines": { "show": true },
       "points": { "radius": flot_point_radius, "show": true },
       "shadowSize": flot_shadow_size,
@@ -141,6 +141,11 @@
         "data": [ [ 0.0, 0.0 ], data[i].coords ]
         });
       }
+      series.push({
+        "points": { "radius": flot_point_radius, "show": true },
+        "color": "#000000",
+        "data": [ [ 0.0, 0.0 ] ]
+      });
 
       var options = {
         "xaxis": { "min": -1.0, "max": 1.0 },
