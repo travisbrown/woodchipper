@@ -47,8 +47,8 @@ class Word extends LongKeyedMapper[Word] with IdPK with OneToMany[Long, Word] {
 }
 
 object TopicWord extends TopicWord with LongKeyedMetaMapper[TopicWord] {
-  override def dbIndexes = Index(IndexField(topic)) ::
-                           Index(IndexField(word)) :: Nil
+  //override def dbIndexes = Index(IndexField(topic)) ::
+  //                         Index(IndexField(word)) :: Nil
 }
 
 class TopicWord extends LongKeyedMapper[TopicWord] with IdPK {

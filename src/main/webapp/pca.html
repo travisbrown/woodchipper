@@ -1,6 +1,11 @@
 <div id="pca-viz">
-  <div id="pca-viz-map"/>
-  <div id="pca-viz-variance"/>
+  <div id="pca-viz-info">
+    <div id="pca-viz-loadings"/>
+    <div id="pca-viz-variance"/>
+  </div>
+  <div id="pca-viz-map-holder">
+    <div id="pca-viz-map"/>
+  </div>
   <lift:PCAViz.renderData/>
   <script type="text/javascript">
 // <![CDATA[
@@ -42,7 +47,7 @@
         "grid": { "clickable": true, "hoverable": true },
         "xaxis": { "zoomRange": [0.1, 2], "panRange": [-1, 1] },
         "yaxis": { "zoomRange": [0.1, 2], "panRange": [-1, 1] },
-        "zoom": { "interactive": true },
+        //"zoom": { "interactive": true },
         "pan": { "interactive": true }
       };
 
@@ -65,7 +70,7 @@
 
     function pca_viz_plot_variance() {
       var pcX_variance = {
-        "label": "Component used for first dimension (x axis)",
+        "label": "PC for first dimension (x axis)",
         "lines": { "show": false },
         "points": { "radius": flot_point_radius, "show": true },
         "shadowSize": flot_shadow_size,
@@ -74,7 +79,7 @@
       };
 
       var pcY_variance = {
-        "label": "Component used for second dimension (y axis)",
+        "label": "PC for second dimension (y axis)",
         "lines": { "show": false },
         "points": { "radius": flot_point_radius, "show": true },
         "shadowSize": flot_shadow_size,
@@ -102,10 +107,53 @@
           pca_viz_pcX = pca_viz_pcY;
           pca_viz_pcY = tmp;
         }
-        pca_viz_plot_variance();
         pca_viz_plot_map();
+        pca_viz_plot_variance();
+        pca_viz_plot_loadings();
       }
     });
+
+    function pca_viz_plot_loadings() {
+      var dataX = pca_viz.loadings[pca_viz_pcX];
+      var dataY = pca_viz.loadings[pca_viz_pcY];
+
+      var data = new Array(dataX.length);
+      for (var i = 0; i < data.length; i++) {
+        data[i] = {
+          "index": i,
+          "coords": [ dataX[i], dataY[i] ],
+          "magnitude": dataX[i] * dataX[i] + dataY[i] * dataY[i]
+        };
+      }
+
+      data.sort(function(a, b) {
+        return (b.magnitude - a.magnitude);
+      });
+
+      var series = [];
+      for (var i = 0; i < 5; i++) {
+        series.push({
+        "label": pca_viz.topics[data[i].index].slice(0, 5).join(" "),
+        "lines": { "show": true },
+        "points": { "radius": flot_point_radius, "show": true },
+        "shadowSize": flot_shadow_size,
+        //"color": "#990055",
+        "data": [ [ 0.0, 0.0 ], data[i].coords ]
+        });
+      }
+
+      var options = {
+        "xaxis": { "min": -1.0, "max": 1.0 },
+        "yaxis": { "min": -1.0, "max": 1.0 }
+      }; // { "grid": {"clickable": true, "hoverable": true } };
+
+      jQuery.plot(jQuery("#pca-viz-loadings"), series, options);
+    }
+
+    jQuery("#pca-viz-loadings").addClass("flot_lww");
+    jQuery("#pca-viz-loadings").show();
+
+    jQuery(document).ready(function() { pca_viz_plot_loadings();; });
 
 // ]]>
   </script>

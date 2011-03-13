@@ -52,19 +52,22 @@ class PCAReducer extends Reducer[PCAReduction] {
     val cov = Statistic.covariance(matrix)
     val evd = new EigenvalueDecomposition(cov)
 
+    val v = evd.getV.viewColumnFlip
+
     /* Finally we take the projection of the points onto the new basis. */
-    val projection: DoubleMatrix2D = this.algebra.mult(matrix, evd.getV).viewColumnFlip
+    val projection: DoubleMatrix2D = this.algebra.mult(matrix, v)
     //val projection: DoubleMatrix2D = this.algebra.mult(matrix, evd.getV).assign(Functions.abs).viewColumnFlip
 
     val colsSelected = Math.min(dims, projection.columns)
     val dataView = projection.viewPart(0, 0, projection.rows, colsSelected)
 
-    val evs = evd.getRealEigenvalues
+    val evs = evd.getRealEigenvalues.viewFlip
     val evt = evs.zSum
 
-    val varianceView = evs.viewFlip.viewPart(0, colsSelected)
+    val varianceView = evs.viewPart(0, colsSelected)
+    val loadingsView = v.viewDice.viewPart(0, 0, colsSelected, v.rows)
 
-    new PCAReduction(dataView.toArray, varianceView.toArray.map(_ / evt), Array[Array[Double]]())
+    new PCAReduction(dataView.toArray, varianceView.toArray.map(_ / evt), loadingsView.toArray)
   }
 }
 

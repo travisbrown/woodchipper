@@ -89,6 +89,11 @@ class PCAViz {
     val variance = reduced.variance
     val loadings = reduced.loadings
 
+    val topics = Topic.findAll.map { topic =>
+      // This isn't ideal.
+      topic.words.map(_.word.obj.openOr(Word.create).form.is)
+    }
+
     Script(
       JsCrVar("pca_viz", JsObj(
         "items" -> new JsArray(texts.map { case (text, documents) => JsObj(
@@ -97,6 +102,7 @@ class PCAViz {
           "uid" -> Str(text.uid.is),
           "documents" -> new JsArray(documents.map { document => Str(document.uid.is) })
         )}),
+        "topics" -> new JsArray(topics.map(topic => new JsArray(topic.map(Str(_)).toList))),
         "breaks" -> new JsArray(breaks.map(Num(_))),
         "data" -> this.convertDouble2DArray(data),
         "variance" -> this.convertDouble1DArrayWithIndex(variance),

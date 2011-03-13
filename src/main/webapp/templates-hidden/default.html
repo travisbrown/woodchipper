@@ -12,17 +12,32 @@
     <style type="text/css">
 /* <![CDATA[ */
 
-hr {
-  color: #59584F;
-}
-
 th {
   color: #fff;
   background-color: #99DDFF;
 }
 
 a {
-  color: #59584F;
+  color: #666;
+}
+
+div#header {
+  border-bottom: 1px solid #999;
+}
+
+div#footer {
+  clear: both;
+  padding-top: 5px;
+  margin-top: 10px;
+  border-top: 1px solid #999;
+}
+
+div#main {
+  clear: both;
+}
+
+div#main form {
+  margin-top: 10px;
 }
 
 div#viz {
@@ -30,9 +45,45 @@ div#viz {
   margin-bottom: 20px;
 }
 
+div#nav {
+  border-bottom: 1px solid #999;
+}
+
+div#nav ul {
+  margin: 0px;
+  padding: 5px 0px;
+  display: inline;
+}
+
+div#nav ul li {
+  list-style: none;
+  display: inline;
+  padding: 0px 10px;
+  margin-left: 0px;
+  border-left: 1px solid #ccc;
+}
+
+div#nav ul li:first-child {
+  border-left: none;
+}
+
+div#nav ul li a {
+	text-decoration: none;
+}
+
 div#pca-viz {
   float: left;
-  width: 60%;
+  width: 65%;
+}
+
+div#pca-viz-info {
+  float: left;
+  width: 43%;
+}
+
+div#pca-viz-map-holder {
+  float: right;
+  width: 55%;
 }
 
 div#pca-viz-map {
@@ -43,6 +94,13 @@ div#pca-viz-map {
 div#pca-viz-variance {
   width: 100%;
   height: 150px;
+  margin-bottom: 20px;
+}
+
+div#pca-viz-loadings {
+  width: 100%;
+  height: 340px;
+  margin-bottom: 10px;
 }
 
 div#drilldown {
@@ -122,12 +180,13 @@ div#drilldown {
   </head>
   <body>
     <div class="container">
-      <div class="column span-12 last">
+      <div id="header"> <!-- class="column span-12 last">-->
         <img alt="woodchipper" src="/static/images/woodchipper-logo.png"/>
         <!--<h1 class="alt"><img alt="" id="ajax-loader" style="display:none; margin-bottom: 0px; margin-left: 5px" src="/images/ajax-loader.gif"/></h1>-->
       </div>
 
-      <hr/>
+        <div id="nav"><span class="lift:Menu.builder" /></div>
+      <!--<hr/>
 
       <div class="column span-6 colborder sidebar">
         <hr class="space" />
@@ -136,16 +195,16 @@ div#drilldown {
           <span class="lift:Msgs?showAll=true"/>
           <hr class="space" />
         </div>
-      </div>
+      </div>-->
 
-      <div class="column span-17 last">
+      <div id="main"> <!-- class="column span-17 last">-->
         <div id="content" >
 	  <!-- The HTML content will go here -->
 	</div>
       </div>
 
-      <hr />
-      <div class="column span-23 last">
+        <!--<hr />-->
+      <div id="footer"> <!-- class="column span-23 last">-->
           Developed at <a href="http://www.mith.umd.edu/corporacamp">Corpora Camp</a>
           at the <a href="http://www.mith.umd.edu/">Maryland Institute for Technology in the Humanities</a>
       </div>
