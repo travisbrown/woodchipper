@@ -112,7 +112,7 @@ class JsonManager(
       text.documents.iterator.filter { document =>
         true //document.plain.trim.length > 64
       }.map { document =>
-        "%s~%s _ %s".format(text.id, document.id, corrector.correct(document.plain.trim.replaceAll("""\s+""", " ")))
+        "%s~%s _ %s".format(text.id, document.id, corrector.correct(document.plain.trim.split("\n").drop(3).mkString("\n").replaceAll("""\s+""", " ")))
       }
     }
   }
@@ -165,7 +165,9 @@ object JsonManager {
       case "echo" => echo(args(1), args(2))
       case "mallet-export" => {
         val manager = new JsonManager(args(1))
-        manager.asMallet.foreach(println(_))
+        val writer = new BufferedWriter(new FileWriter(args(2)))
+        manager.asMallet.foreach((line: String) => writer.write(line + "\n"))
+        writer.close
       }
       case "mallet-add-features" => {
         val manager = new JsonManager(args(2))

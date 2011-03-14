@@ -119,6 +119,17 @@ class TextSelector(
   }
 }
 
+class SelectionSelector(
+  path: String,
+  blacklist: Set[String],
+  selectedIds: Set[String])
+  extends MetadataParser(path, blacklist) {
+
+  override def iterator: Iterator[Record] = super.iterator.filter {
+    case (id, fields) => selectedIds.contains(id)
+  }
+}
+
 class Dedup(wrapped: Iterable[(String, Map[String, List[String]])])
   extends Iterable[(String, Map[String, List[String]])] {
 
@@ -142,6 +153,12 @@ class Dedup(wrapped: Iterable[(String, Map[String, List[String]])])
   }
 }
 
+object HathiExtractor {
+  def main(args: Array[String]) {
+
+  }
+}
+
 object MetadataParser {
 
   private def latestYear(parsed: (Int, Option[Int])): Int = parsed match {
@@ -152,9 +169,16 @@ object MetadataParser {
   def main(args: Array[String]) {
     val dp = new DateCleaner
     val hc = new HathiCollection(args(1))
-    new TextSelector(args(0), Set("description"), (0, 1850), "eng", "pd").foreach {
-      case (id: String, metadata: Map[String, List[String]]) => {
 
+    val selector = if (args.length > 3) {
+      val selection = Source.fromFile(args(3)).getLines.map(_.trim).filterNot(_.isEmpty).toSet
+      new SelectionSelector(args(0), Set("description"), selection)
+    } else {
+      new TextSelector(args(0), Set("description"), (0, 1850), "eng", "pd")
+    }
+
+    selector.foreach {
+      case (id: String, metadata: Map[String, List[String]]) => {
         val year = metadata.get("date").flatMap { v: List[String] => dp.parseYearField(v(0)) }.map(latestYear(_)) match {
           case Some(year) => year
         }
@@ -176,49 +200,15 @@ object MetadataParser {
                                             JField("collection", "hathi"),
                                             JField("title", metadata.getOrElse("title", List("_"))(0)),
                                             JField("author", metadata.getOrElse("creator", List("_"))(0)),
-                                            //JField("date", metadata.getOrElse("date", List("_"))(0))))),
                                             JField("date", year)))),
                                 JField("chunks", JArray(pages))))
 
-
-        /*pages.map {
-           
-        }*/
-
-        /*val text = new ArrayBuffer[JField]()
-        text += JField("id", id)
-        text += JField("title", metadata.getOrElse("title", List("_"))(0))
-        text += JField("creator", metadata.getOrElse("creator", List("_"))(0))
-        text += JField("year", metadata.getOrElse("year", List("_"))(0))
-            
-            val pages = new ArrayBuffer[JObject]()
-
-            hc.findTextInfo(id) match {
-              case Some(info) => {
-                hc.extractPages(info).foreach {
-                  case (page, content) => {
-                    val ps = content.split("\n").toList.map(JString(_))
-                    pages += JObject(List(JField("page", JInt(page)), JField("contents", ps)))
-                  }
-                }
-              }
-            }
-            text += JField("pages", JArray(pages.toList))
-
-            texts = new JObject(text.toList)
-          }
-          case _ => ()
-        }*/
-
-        //val out = JArray(pages)
         val (col, tex) = hc.escape(id)
-        val writer = new BufferedWriter(new FileWriter("hathi/" + col + "." + tex + ".json"))
+        val writer = new BufferedWriter(new FileWriter(new File(args(2), col + "." + tex + ".json")))
         writer.write(net.liftweb.json.Printer.pretty(render(text)))
         writer.close()
       }
     }
-    //val out = new JArray(texts.toList)
-    //println(net.liftweb.json.Printer.pretty(render(out)))
   }
 }
 
