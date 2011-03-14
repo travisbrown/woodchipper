@@ -9,6 +9,23 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 import scala.io._
 
+class Corrector(lang: String) {
+  def this() = this("en")
+  private val words = {
+    val source = Source.fromInputStream(this.getClass.getResourceAsStream("corrections.%s.txt".format(lang)))
+    val lines = source.getLines.toList
+    source.close
+    lines.map { line =>
+      val Array(wrong, right) = line.split("""\s""")
+      (wrong, right)
+    }
+  }
+
+  def correct(text: String) = (text /: this.words) {
+    case (current, (wrong, right)) => current.replaceAll("""\b""" + wrong + """\b""", right)
+  }
+}
+
 trait Jsonable {
   def toJson: JObject
 
@@ -89,11 +106,13 @@ class JsonManager(
   def withFiles = this.files.iterator.zip(this.iterator)
 
   def asMallet: Iterator[String] = {
+    val corrector = new Corrector
+
     this.iterator.flatMap { text =>
       text.documents.iterator.filter { document =>
         true //document.plain.trim.length > 64
       }.map { document =>
-        "%s~%s _ %s".format(text.id, document.id, document.plain.trim.replaceAll("""\s+""", " "))
+        "%s~%s _ %s".format(text.id, document.id, corrector.correct(document.plain.trim.replaceAll("""\s+""", " ")))
       }
     }
   }
