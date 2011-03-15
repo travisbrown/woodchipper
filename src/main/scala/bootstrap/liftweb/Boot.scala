@@ -28,7 +28,8 @@ object WoodchipperRest extends RestHelper {
       ("text" -> ("title" -> text.title.is) ~ ("author" -> text.author.is) ~ ("year" -> text.year.is)) ~
       ("document" -> ("seq" -> doc.uid.is) ~
                      ("html" -> scala.xml.Utility.escape(doc.plain.is).replaceAll("\n", "<br />")) ~
-                     ("url" -> urlBuilder.buildChunkURL(text.collectionName, text.uid.is, doc.uid.is)))
+                     ("url" -> urlBuilder.buildChunkURL(text.collectionName, text.uid.is, doc.uid.is)) ~
+                     ("features" -> doc.features.toList))
     }
   }
 }
