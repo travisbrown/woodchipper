@@ -13,7 +13,9 @@ case class HathiTextInfo(
 
 class HathiCollection(private val base: String) {
   def escape(id: String): (String, String) = {
-    val Array(collection, remainder) = id.split("""\.""")
+    val first = id.indexOf(".")
+    val collection = id.substring(0, first)
+    val remainder = id.substring(first + 1)
     val dirName = remainder.replaceAll("""\.""", ",")
                            .replaceAll("""\:""", "+")
                            .replaceAll("""\/""", "=")
@@ -77,7 +79,10 @@ class HathiCollection(private val base: String) {
       if (metsFile.exists && zipFile.exists) {
         Some(HathiTextInfo(id, metsFile, zipFile))
       } else None
-    } else None
+    } else {
+      System.err.println("ERROR: no such file: " + path)
+      None
+    }
   }
 
   def extractPages(text: HathiTextInfo): Iterator[(Int, String)] = {

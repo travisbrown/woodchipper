@@ -115,7 +115,11 @@ class TextSelector(
   }
 
   override def iterator: Iterator[Record] = super.iterator.filter {
-    case (_, fields) => this.validDate(fields) && this.validLanguage(fields) && this.validRights(fields)
+    case (id, fields) => {
+      val valid = this.validDate(fields) && this.validLanguage(fields) && this.validRights(fields)
+      println((if (valid) "*" else " ") + " " + id)
+      valid
+    }
   }
 }
 
@@ -126,7 +130,11 @@ class SelectionSelector(
   extends MetadataParser(path, blacklist) {
 
   override def iterator: Iterator[Record] = super.iterator.filter {
-    case (id, fields) => selectedIds.contains(id)
+    case (id, fields) => {
+      val valid = selectedIds.contains(id)
+      println((if (valid) "*" else " ") + " " + id)
+      valid
+    }
   }
 }
 
@@ -174,7 +182,7 @@ object MetadataParser {
       val selection = Source.fromFile(args(3)).getLines.map(_.trim).filterNot(_.isEmpty).toSet
       new SelectionSelector(args(0), Set("description"), selection)
     } else {
-      new TextSelector(args(0), Set("description"), (0, 1850), "eng", "pd")
+      new TextSelector(args(0), Set("description"), (0, 1837), "eng", "pd")
     }
 
     selector.foreach {
@@ -205,7 +213,7 @@ object MetadataParser {
 
         val (col, tex) = hc.escape(id)
         val writer = new BufferedWriter(new FileWriter(new File(args(2), col + "." + tex + ".json")))
-        writer.write(net.liftweb.json.Printer.pretty(render(text)))
+        net.liftweb.json.Printer.pretty(render(text), writer)
         writer.close()
       }
     }

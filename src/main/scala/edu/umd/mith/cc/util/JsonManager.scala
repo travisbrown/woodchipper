@@ -4,6 +4,7 @@ import java.io._
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import java.util.regex._
 import net.liftweb.json._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
@@ -17,12 +18,13 @@ class Corrector(lang: String) {
     source.close
     lines.map { line =>
       val Array(wrong, right) = line.split("""\s""")
-      (wrong, right)
+      val pattern = Pattern.compile("""\b""" + wrong + """\b""")
+      (text: String) => pattern.matcher(text).replaceAll(right)
     }
   }
 
   def correct(text: String) = (text /: this.words) {
-    case (current, (wrong, right)) => current.replaceAll("""\b""" + wrong + """\b""", right)
+    case (current, replacer) => replacer(current) //current.replaceAll("""\b""" + wrong + """\b""", right)
   }
 }
 
@@ -92,7 +94,7 @@ class JsonManager(
 
       val JField(_, JArray(chunks)) = doc \ "chunks"
 
-      JsonText(textId, collection, title, author, year.toInt,
+      val text = JsonText(textId, collection, title, author, year.toInt,
         chunks.map { chunk =>
           val JField(_, JString(chunkId)) = chunk \ "metadata" \ "chunkid"
           val JField(_, JString(plain)) = chunk \ "representations" \ "plain"
@@ -100,20 +102,26 @@ class JsonManager(
           JsonDocument(chunkId, plain, html, Map())
         }
       )
+
+      reader.close
+      text
     } 
   }
 
   def withFiles = this.files.iterator.zip(this.iterator)
 
-  def asMallet: Iterator[String] = {
-    val corrector = new Corrector
+  private val corrector = new Corrector
+  private val wsPattern = Pattern.compile("""\s+""")
 
+  def documentToMallet(text: JsonText, document: JsonDocument) = {
+    val content = wsPattern.matcher(document.plain.trim.split("\n").drop(3).mkString("\n")).replaceAll(" ")
+    val corrected = if (text.year < 1800) this.corrector.correct(content) else content
+    "%s~%s _ %s".format(text.id, document.id, corrected)
+  }
+
+  def asMallet: Iterator[String] = {
     this.iterator.flatMap { text =>
-      text.documents.iterator.filter { document =>
-        true //document.plain.trim.length > 64
-      }.map { document =>
-        "%s~%s _ %s".format(text.id, document.id, corrector.correct(document.plain.trim.split("\n").drop(3).mkString("\n").replaceAll("""\s+""", " ")))
-      }
+      text.documents.iterator.map(this.documentToMallet(text, _))
     }
   }
 
@@ -168,6 +176,26 @@ object JsonManager {
         val writer = new BufferedWriter(new FileWriter(args(2)))
         manager.asMallet.foreach((line: String) => writer.write(line + "\n"))
         writer.close
+      }
+      case "mallet-partition-export" => {
+        val manager = new JsonManager(args(1))
+        val output = new File(args(2))
+        val n = args(3).toInt
+        val writers = (0 until n).map { i =>
+          new BufferedWriter(new FileWriter(new File(output, "%03d.txt".format(i))))
+        }
+        
+        manager.iterator.zip(Stream.continually((0 until n).toStream).flatten.toIterator).foreach {
+          case (text, i) => {
+            printf("%03d: %s\n", i, text.id)
+            text.documents.iterator.foreach { document =>
+              writers(i).write(manager.documentToMallet(text, document))
+              writers(i).newLine
+            }
+          }
+        }
+
+        writers.map(_.close)
       }
       case "mallet-add-features" => {
         val manager = new JsonManager(args(2))
