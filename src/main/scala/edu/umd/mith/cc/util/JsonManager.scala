@@ -8,7 +8,7 @@ import java.util.regex._
 import net.liftweb.json._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
-import scala.io._
+import scala.io.Source
 
 class Corrector(lang: String) {
   def this() = this("en")
@@ -24,7 +24,7 @@ class Corrector(lang: String) {
   }
 
   def correct(text: String) = (text /: this.words) {
-    case (current, replacer) => replacer(current) //current.replaceAll("""\b""" + wrong + """\b""", right)
+    case (current, replacer) => replacer(current)
   }
 }
 

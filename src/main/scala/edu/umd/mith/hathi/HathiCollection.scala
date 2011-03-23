@@ -3,6 +3,7 @@ package edu.umd.mith.hathi
 import java.io.File
 import scala.io.Source
 
+import edu.umd.mith.util.Implicits._
 import edu.umd.mith.util.ZipReader
 
 case class HathiTextInfo(
@@ -22,34 +23,14 @@ class HathiCollection(private val base: String) {
     (collection, dirName)
   }
 
-  def unescape(dirName: String) = {
+  def unescape(dirName: String) =
     dirName.replaceAll("""\,""", ".")
            .replaceAll("""\+""", ":")
            .replaceAll("""\=""", "/")
-  }
-
-  private val fileComparator = new java.util.Comparator[File] {
-    def compare(f1: File, f2: File) = f1.compareTo(f2)
-  }
-
-  private def sortedContents(dir: File): Iterator[File] = {
-    val children = dir.listFiles
-    java.util.Arrays.sort(children, this.fileComparator)
-    children.toIterator
-  }
-
-  private def allLeaves(dir: File): Iterator[File] = {
-    val children = this.sortedContents(dir)
-    if (children.toList.forall(_.isDirectory)) {
-      children.flatMap(this.allLeaves(_))
-    } else {
-      Iterator(dir)
-    }
-  }
 
   def texts: Iterator[HathiTextInfo] = {
-    this.sortedContents(new File(this.base)).flatMap { collection =>
-      this.allLeaves(new File(collection, "pairtree_root")).map { path =>
+    (new File(this.base)).listSortedFiles.toIterator.flatMap { collection =>
+      (new File(collection, "pairtree_root")).leaves.map { path =>
         val metsFile = new File(path, path.getName + ".mets.xml")
         val zipFile = new File(path, path.getName + ".zip")
         assert(metsFile.exists)
@@ -87,7 +68,7 @@ class HathiCollection(private val base: String) {
 
   def extractPages(text: HathiTextInfo): Iterator[(Int, String)] = {
     val reader = new ZipReader(text.zipFile)
-    reader.contents.map {
+    reader.iterator.map {
       case (path, source) => {
         val Array(_, name) = path.split("""\/""")
         val Array(number, _) = name.split("""\.""")
