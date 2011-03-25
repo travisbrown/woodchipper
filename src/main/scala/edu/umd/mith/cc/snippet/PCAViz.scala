@@ -11,7 +11,6 @@ import edu.umd.mith.cc.model._
 import edu.umd.mith.cc.analysis._
 import Helpers._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.widgets.flot._
 import js._
 import JsCmds._
 import JE._

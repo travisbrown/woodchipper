@@ -15,7 +15,7 @@ import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.edu.umd.mith.cc.model._
-import net.liftweb.widgets.flot._
+//import net.liftweb.widgets.flot._
 import edu.umd.mith.cc.util.CCURLBuilder
 
 object WoodchipperRest extends RestHelper {
@@ -53,13 +53,15 @@ class Boot {
     }
 
 
-    Flot.init
+    //Flot.init
     //LiftRules.htmlProperties.default.set((r: Req) =>
     //  new Html5Properties(r.userAgent))
 
     ResourceServer.allow({
-      case "flot" :: "jquery.flot.navigate.js" :: Nil => true
-      case "flot" :: "jquery.flot.pie.js" :: Nil => true
+      case "js" :: "viz" :: "pca.js" :: Nil => true
+      case "js" :: "flot" :: "jquery.flot.js" :: Nil => true
+      case "js" :: "flot" :: "jquery.flot.navigate.js" :: Nil => true
+      case "js" :: "flot" :: "jquery.flot.pie.js" :: Nil => true
     })
 
     // where to search snippet
