@@ -150,3 +150,42 @@ jQuery("#pca-viz-loadings").show();
 
 jQuery(document).ready(function() { pca_viz_plot_loadings();; });
 
+var pca_load_document = function(event, pos, item) {
+  if (item) {
+    jQuery.getJSON('api/text/' + pca_viz.items[item.seriesIndex].id + '/' + item.dataIndex + '.json', function(data) {
+      jQuery('#drilldown-title').text(data.text.title + ' (' + data.document.seq + ')');
+      jQuery('#drilldown-author').text(data.text.author + ' (' + data.text.year + ')');
+      jQuery('#drilldown-link').text("Visit source collection");
+      jQuery('#drilldown-link').attr("href", data.document.url);
+      jQuery('#drilldown-text').html(data.document.html);
+    });
+  }
+};
+
+var pca_bind_hover = function() {
+  jQuery("#pca-viz-map").bind("plothover", function (event, pos, item) {
+    if (item) {
+      pca_load_document(event, pos, item);
+      jQuery('#pca-viz-map').unbind('plothover');
+      setTimeout(pca_bind_both, 250);
+    }
+  });
+};
+
+var pca_bind_click = function() {
+  jQuery("#pca-viz-map").bind("plotclick", function (event, pos, item) {
+    if (item) {
+      pca_load_document(event, pos, item);
+      jQuery('#pca-viz-map').unbind('plothover');
+      setTimeout(pca_bind_both, 3000);
+    }
+  });
+};
+
+var pca_bind_both = function() {
+  pca_bind_hover();
+  pca_bind_click();
+};
+
+pca_bind_both();
+
