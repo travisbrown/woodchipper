@@ -1,25 +1,10 @@
 package edu.umd.mith.cc.analysis
 
-import cern.colt.matrix.DoubleMatrix2D
-import cern.colt.matrix.DoubleMatrix1D
-import cern.colt.matrix.ObjectMatrix2D
-import cern.colt.matrix.impl.DenseObjectMatrix2D
 import cern.colt.matrix.impl.DenseDoubleMatrix2D
-import cern.colt.matrix.impl.DenseDoubleMatrix1D
 import cern.colt.matrix.doublealgo.Statistic
 import cern.colt.matrix.linalg.EigenvalueDecomposition
 import cern.colt.matrix.linalg.Algebra
-import cern.jet.math.Functions
-
-class TestFile(path: String) {
-  val (names, data)  = scala.io.Source.fromFile(path).getLines.toIterable.map { line =>
-    val fields = line.split("""\s""")
-    (fields(0), fields.slice(1, fields.size).map(_.toDouble))
-  }.unzip
-
-  def matrix: Array[Array[Double]] = data.toArray
-  def labels: List[String] = names.toList
-}
+//import cern.jet.math.Functions
 
 class PCAReduction(
   val data: Array[Array[Double]],
@@ -55,10 +40,10 @@ class PCAReducer extends Reducer[PCAReduction] {
     val v = evd.getV.viewColumnFlip
 
     /* Finally we take the projection of the points onto the new basis. */
-    val projection: DoubleMatrix2D = this.algebra.mult(matrix, v)
+    val projection = this.algebra.mult(matrix, v)
     //val projection: DoubleMatrix2D = this.algebra.mult(matrix, evd.getV).assign(Functions.abs).viewColumnFlip
 
-    val colsSelected = Math.min(dims, projection.columns)
+    val colsSelected = math.min(dims, projection.columns)
     val dataView = projection.viewPart(0, 0, projection.rows, colsSelected)
 
     val evs = evd.getRealEigenvalues.viewFlip
@@ -68,17 +53,6 @@ class PCAReducer extends Reducer[PCAReduction] {
     val loadingsView = v.viewDice.viewPart(0, 0, colsSelected, v.rows)
 
     new PCAReduction(dataView.toArray, varianceView.toArray.map(_ / evt), loadingsView.toArray)
-  }
-}
-
-object PCAReducer {
-  def main(args: Array[String]) {
-    val file = new TestFile(args(0))
-    val pc = new PCAReducer
-    val reduced = pc.reduce(file.matrix)
-    reduced.data.foreach {
-      row => println(row.mkString(" "))
-    }
   }
 }
 
