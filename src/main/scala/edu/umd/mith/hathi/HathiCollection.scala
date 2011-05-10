@@ -44,15 +44,9 @@ class HathiCollection(private val base: String) {
     }
   }
 
-  private def split2(dirName: String): List[String] = dirName.length match {
-    case 0 => Nil
-    case 1 => List(dirName)
-    case _ => dirName.substring(0, 2) :: this.split2(dirName.substring(2))
-  }
-
   def findTextInfo(id: String): Option[HathiTextInfo] = {
     val (collection, name) = this.escape(id)
-    val parts = collection :: "pairtree_root" :: (this.split2(name) :+ name)
+    val parts = collection :: "pairtree_root" :: (name.grouped(2).toList :+ name)
     val path = new File(this.base, parts.mkString(File.separator))
     if (path.exists) {
       val metsFile = new File(path, path.getName + ".mets.xml")
@@ -68,7 +62,7 @@ class HathiCollection(private val base: String) {
 
   def extractPages(text: HathiTextInfo): Iterator[(Int, String)] = {
     val reader = new ZipReader(text.zipFile)
-    reader.iterator.map {
+    reader.iterator.drop(1).map {
       case (path, source) => {
         val Array(_, name) = path.split("""\/""")
         val Array(number, _) = name.split("""\.""")
@@ -86,6 +80,29 @@ class HathiCollection(private val base: String) {
           content.replaceAll("\n", " ")
         }
       }
+    }
+  }
+}
+
+object WordCounter {
+  def main(args: Array[String]) {
+    //val records = new MetadataParser(args(0), Set("description", "identifier"))
+    val collection = new HathiCollection(args(0))
+
+    var i = 0
+    var c = 0
+
+    //records.foreach { case (id: String, _) =>
+    collection.texts.foreach { info =>
+      val pages = collection.extractPages(info).map {
+        case (_, content) => content.split("\\s").length
+      }
+
+      val count = pages.sum
+      c += count
+
+      println("%10d: %16d %16d".format(i, count, c)) 
+      i += 1
     }
   }
 }
