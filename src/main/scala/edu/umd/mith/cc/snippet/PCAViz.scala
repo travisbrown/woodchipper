@@ -64,7 +64,7 @@ class PCAViz {
   }
 
   private def shortenTitle(title: String) = {
-    title.substring(0, Math.min(60, title.length)) + "..."
+    title.substring(0, math.min(60, title.length)) + "..."
   }
 
   def renderData(in: NodeSeq): NodeSeq = {
@@ -76,9 +76,7 @@ class PCAViz {
       (text, Document.findAll(By(Document.text, text.id)))
     }
     
-    val breaks = texts.map(_._2.size).foldLeft[List[Int]](List(0)) {
-      case (last :: acc, x) => x + last :: last :: acc
-    }.reverse
+    val breaks = texts.map(_._2.size).scanLeft(0)(_ + _)
 
     val matrix = texts.flatMap { _._2.map { _.features } }
     val reducer = new PCAReducer

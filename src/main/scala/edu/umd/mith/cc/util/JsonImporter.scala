@@ -38,6 +38,8 @@ class JsonImporter(path: String) {
           val document = Document.add(text, chunkId, plain, html)
           val features = topics.map {
             case JDouble(value) => value
+            case JInt(value) => value.toDouble
+            case _ => 0.0
           }.toArray
           document.setFeatures(features)
         }

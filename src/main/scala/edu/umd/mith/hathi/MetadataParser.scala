@@ -89,7 +89,7 @@ class TextSelector(
   private val dateCleaner = new DateCleaner
 
   def latestYear(parsed: (Int, Option[Int])): Int = parsed match {
-    case (start: Int, Some(end: Int)) => Math.max(start, end)
+    case (start: Int, Some(end: Int)) => math.max(start, end)
     case (start: Int, None) => start
   }
 
@@ -144,7 +144,7 @@ class Dedup(wrapped: Iterable[(String, Map[String, List[String]])])
   val seen = scala.collection.mutable.Set[String]()
 
   override def iterator: Iterator[(String, Map[String, List[String]])] = wrapped.iterator.filter {
-    case (_, fields: Map[String, List[String]]) => {
+    case (_, fields) => {
       val bibs = fields.getOrElse("identifier", List("_")).filter {
         case value => value.startsWith("(BIB)")
       }
@@ -170,7 +170,7 @@ object HathiExtractor {
 object MetadataParser {
 
   private def latestYear(parsed: (Int, Option[Int])): Int = parsed match {
-    case (start: Int, Some(end: Int)) => Math.max(start, end)
+    case (start: Int, Some(end: Int)) => math.max(start, end)
     case (start: Int, None) => start
   }
 
@@ -186,9 +186,10 @@ object MetadataParser {
     }
 
     selector.foreach {
-      case (id: String, metadata: Map[String, List[String]]) => {
+      case (id, metadata) => {
         val year = metadata.get("date").flatMap { v: List[String] => dp.parseYearField(v(0)) }.map(latestYear(_)) match {
           case Some(year) => year
+          case None => 0
         }
 
         val pages = hc.findTextInfo(id) match {
@@ -202,6 +203,7 @@ object MetadataParser {
               }
             }.toList
           }
+          case None => println("%s is an invalid text ID.".format(id)); List()
         }
 
         val text = JObject(List(JField("metadata", JObject(List(JField("textid", id),
