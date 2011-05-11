@@ -6,7 +6,6 @@ import java.io.File
 import java.io.FileReader
 import java.util.regex._
 import net.liftweb.json._
-import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 import scala.io.Source
 

@@ -5,7 +5,6 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import net.liftweb.json._
-import net.liftweb.json.JsonAST._
 
 import _root_.bootstrap.liftweb.Boot
 
