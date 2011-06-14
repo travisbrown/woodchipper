@@ -14,19 +14,19 @@ case class HathiTextInfo(
 
 class HathiCollection(private val base: String) {
   def escape(id: String): (String, String) = {
-    val first = id.indexOf(".")
+    val first = id.indexOf('.')
     val collection = id.substring(0, first)
     val remainder = id.substring(first + 1)
-    val dirName = remainder.replaceAll("""\.""", ",")
-                           .replaceAll("""\:""", "+")
-                           .replaceAll("""\/""", "=")
+    val dirName = remainder.replace('.', ',')
+                           .replace(':', '+')
+                           .replace('/', '=')
     (collection, dirName)
   }
 
   def unescape(dirName: String) =
-    dirName.replaceAll("""\,""", ".")
-           .replaceAll("""\+""", ":")
-           .replaceAll("""\=""", "/")
+    dirName.replace(',', '.')
+           .replace('+', ':')
+           .replace('=', '/')
 
   def texts: Iterator[HathiTextInfo] = {
     (new File(this.base)).listSortedFiles.toIterator.flatMap { collection =>
