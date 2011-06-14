@@ -46,7 +46,7 @@ function pca_viz_plot_map() {
 jQuery("#pca-viz-map").addClass("flot_lww");
 jQuery("#pca-viz-map").show();
 
-jQuery(document).ready(function() { pca_viz_plot_map();; });
+//jQuery(document).ready(function() { pca_viz_plot_map();; });
 
 
 var pca_viz_variance = {
@@ -104,6 +104,12 @@ jQuery("#pca-viz-variance").bind("plotclick", function (event, pos, item) {
   }
 });
 
+  var pie_data = [];
+	var series = Math.floor(Math.random()*10)+1;
+	for( var i = 0; i<series; i++)
+	{
+		pie_data[i] = { "label": "Series"+(i+1), "data": Math.floor(Math.random()*100)+1 };
+	}
 
 
 var pca_viz_piechart = {
@@ -112,18 +118,12 @@ var pca_viz_piechart = {
   	  "pie": {
   	  	"show": true 
   	  }
-  	}  
-  	var data = [];
-	var series = Math.floor(Math.random()*10)+1;
-	for( var i = 0; i<series; i++)
-	{
-		data[i] = { label: "Series"+(i+1), data: Math.floor(Math.random()*100)+1 }
-	}
-    "data": data
+  	}//,  
+  //"data": data
 };
 
 function pca_viz_plot_piechart() {
-  jQuery.plot(jQuery("#pca-viz-piechart"), pca_viz_piechart);
+  jQuery.plot(jQuery("#pca-viz-piechart"), pie_data, pca_viz_piechart);
 }
 
 
