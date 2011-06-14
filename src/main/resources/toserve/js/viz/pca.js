@@ -48,6 +48,7 @@ jQuery("#pca-viz-map").show();
 
 jQuery(document).ready(function() { pca_viz_plot_map();; });
 
+
 var pca_viz_variance = {
   //"label": "Variance for component",
   "lines": { "show": true },
@@ -102,6 +103,36 @@ jQuery("#pca-viz-variance").bind("plotclick", function (event, pos, item) {
     pca_viz_plot_loadings();
   }
 });
+
+
+
+var pca_viz_piechart = {
+  //"label": "",
+  "series": { 
+  	  "pie": {
+  	  	"show": true 
+  	  }
+  	}  
+  	var data = [];
+	var series = Math.floor(Math.random()*10)+1;
+	for( var i = 0; i<series; i++)
+	{
+		data[i] = { label: "Series"+(i+1), data: Math.floor(Math.random()*100)+1 }
+	}
+    "data": data
+};
+
+function pca_viz_plot_piechart() {
+  jQuery.plot(jQuery("#pca-viz-piechart"), pca_viz_piechart);
+}
+
+
+jQuery("#pca-viz-piechart").addClass("flot_lww");
+jQuery("#pca-viz-piechart").show();
+
+jQuery(document).ready(function() { pca_viz_plot_piechart();; });
+
+
 
 function pca_viz_plot_loadings() {
   var dataX = pca_viz.loadings[pca_viz_pcX];
