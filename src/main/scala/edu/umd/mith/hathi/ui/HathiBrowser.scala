@@ -1,18 +1,7 @@
 package edu.umd.mith.hathi.ui
 
-/*import org.apache.felix.gogo.commands.{
-  Action,
-  Option => option,
-  Argument => argument,
-  Command => command
-}
-import org.apache.karaf.shell.console.OsgiCommandSupport
-import org.apache.felix.gogo.runtime.CommandShellImpl
-import org.apache.felix.service.command.CommandSession
-import org.apache.karaf.shell.console.Main
-import org.apache.karaf.shell.console.jline.Console
-import org.osgi.service.command.CommandSession*/
 import java.io.File
+import scala.io.Source
 
 import edu.umd.mith.hathi._
 import org.clapper.argot._
@@ -51,6 +40,16 @@ object HathiBrowser {
     new MetadataParser(file)
   }
 
+  val id = this.parser.option[String](
+    List("i", "id"),
+    "id",
+    "Hathi identifier.")
+
+  val file = this.parser.option[File](
+    List("f", "file"),
+    "file",
+    "Additional input file (use varies depending on action).") 
+
   def run() {
     this.action.value match {
       case Some("wc") => {
@@ -70,6 +69,19 @@ object HathiBrowser {
         }}
       }
       case Some("malletize") => {
+        this.id.value match {
+          case Some(id) => 
+            this.collection.value.get.formatMallet(id).foreach(_.foreach(println(_)))
+          case None => {}
+        }
+        this.file.value match {
+          case Some(f) => {
+            Source.fromFile(f).getLines.foreach {
+              this.collection.value.get.formatMallet(_).foreach(_.foreach(println(_)))
+            }
+          }
+          case None => {}
+        }
       }
     }
   }
@@ -83,23 +95,4 @@ object HathiBrowser {
     }
   }
 }
-
-/*object HathiCollection {
-  def main(args: Array[String]) {
-    val e = new HathiCollection(args(0))
-    val f = new File(args(1))
-    if (f.exists) {
-      Source.fromFile(f).getLines.foreach {
-        e.formatMallet(_).foreach(_.foreach(println(_)))
-      }
-    } else {
-      e.find(args(1)) match {
-        case Some(info) => e.extractPages(info).foreach {
-          case (page, content) => printf("%06d ==============\n%s\n", page, content)
-        }
-        case None => println("No such file.")
-      }
-    }
-  }
-}*/
 
