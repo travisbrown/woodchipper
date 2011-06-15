@@ -10,12 +10,14 @@ import net.liftweb.json.Printer._
 
 import edu.umd.mith.hathi.util.DateCleaner
 
-class MetadataParser(val path: String, private val blacklist: Set[String])
+class MetadataParser(val file: File, private val blacklist: Set[String])
   extends Iterable[(String, Map[String, List[String]])] {
   type FieldMap = Map[String, List[String]]
   type Record = (String, FieldMap)
 
-  def this(path: String) = this(path, Set())
+  def this(file: File) = this(file, Set[String]())
+  def this(path: String, blacklist: Set[String]) = this(new File(path), blacklist)
+  def this(path: String) = this(new File(path))
 
   private def readText(reader: Iterator[XMLEvent]): String = {
     val builder = new StringBuilder
@@ -51,7 +53,7 @@ class MetadataParser(val path: String, private val blacklist: Set[String])
   }
 
   def iterator: Iterator[Record] = {
-    val reader = new XMLEventReader(Source.fromFile(this.path)).filter {
+    val reader = new XMLEventReader(Source.fromFile(this.file)).filter {
       case _: EvElemStart => true
       case _: EvElemEnd => true
       case _: EvEntityRef => true
@@ -192,7 +194,7 @@ object MetadataParser {
           case None => 0
         }
 
-        val pages = hc.findTextInfo(id) match {
+        val pages = hc.find(id) match {
           case Some(info) => {
             hc.extractPages(info).map {
               case (page, content) => {
