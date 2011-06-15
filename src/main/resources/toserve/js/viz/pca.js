@@ -46,7 +46,7 @@ function pca_viz_plot_map() {
 jQuery("#pca-viz-map").addClass("flot_lww");
 jQuery("#pca-viz-map").show();
 
-//jQuery(document).ready(function() { pca_viz_plot_map();; });
+jQuery(document).ready(function() { pca_viz_plot_map();; });
 
 
 var pca_viz_variance = {
@@ -123,11 +123,11 @@ for( var i = 0; i<series; i++){
         for (var j = 0; j < 5; j++) {
    		      pietopic.push(pca_viz.topics[j].slice(0,5).join(" ") );
          }		  
-         pietopic.push({
+         //pietopic.push({
              // eventually, this should be replaced by the actual features (sorted)
              // for now, it's randomly generated (for testing).
     	     // "data": Math.floor(Math.random()*100)+1
-         });
+         //});
 		 pie_data[i] = { "label": pietopic[i], "data": Math.floor(Math.random()*100)+1 };
 }
 
@@ -136,6 +136,7 @@ var pca_viz_piechart = {
  //"label": "",
   "series": { 
   	  "pie": {
+        "show": true
   	  }
   },  
  //"data": data
