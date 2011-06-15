@@ -104,26 +104,46 @@ jQuery("#pca-viz-variance").bind("plotclick", function (event, pos, item) {
   }
 });
 
-  var pie_data = [];
-	var series = Math.floor(Math.random()*10)+1;
-	for( var i = 0; i<series; i++)
-	{
-		pie_data[i] = { "label": "Series"+(i+1), "data": Math.floor(Math.random()*100)+1 };
-	}
+var pie_data = [];
+var pietopic = [];
+
+ //   for (var j = 0; j < 5; j++) {
+ //  		 pietopic.push({
+ //   		 "label": pca_viz.topics[data[j].index].slice(0,5).join(" ")
+ //   	 });
+ //   }	 
+    
+var series = Math.floor(Math.random()*10)+1;
+
+// for( var i = 0; i<series; i++){
+//		pie_data[i] = { "label": "Series"+(i+1), "data": Math.floor(Math.random()*100)+1 };
+//}
+
+for( var i = 0; i<series; i++){
+        for (var j = 0; j < 5; j++) {
+   		      pietopic.push(pca_viz.topics[j].slice(0,5).join(" ") );
+         }		  
+         pietopic.push({
+             // eventually, this should be replaced by the actual features (sorted)
+             // for now, it's randomly generated (for testing).
+    	     // "data": Math.floor(Math.random()*100)+1
+         });
+		 pie_data[i] = { "label": pietopic[i], "data": Math.floor(Math.random()*100)+1 };
+}
 
 
 var pca_viz_piechart = {
-  //"label": "",
+ //"label": "",
   "series": { 
   	  "pie": {
-  	  	"show": true 
   	  }
-  	}//,  
-  //"data": data
+  },  
+ //"data": data
 };
 
 function pca_viz_plot_piechart() {
-  jQuery.plot(jQuery("#pca-viz-piechart"), pie_data, pca_viz_piechart);
+    
+    jQuery.plot(jQuery("#pca-viz-piechart"), pie_data, pca_viz_piechart);
 }
 
 
