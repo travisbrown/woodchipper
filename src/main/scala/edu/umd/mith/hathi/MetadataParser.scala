@@ -53,7 +53,8 @@ class MetadataParser(val file: File, private val blacklist: Set[String])
   }
 
   def iterator: Iterator[Record] = {
-    val reader = new XMLEventReader(Source.fromFile(this.file)).filter {
+    val source = Source.fromFile(this.file)
+    val reader = new XMLEventReader(source).filter {
       case _: EvElemStart => true
       case _: EvElemEnd => true
       case _: EvEntityRef => true
@@ -67,7 +68,7 @@ class MetadataParser(val file: File, private val blacklist: Set[String])
     new Iterator[Record] {
       def hasNext: Boolean = current match {
         case EvElemStart(_, "record", attrs, _) => true
-        case _ => false
+        case _ => source.close; false
       }
 
       def next: Record = {

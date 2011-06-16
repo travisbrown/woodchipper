@@ -64,7 +64,7 @@ class HathiCollection(private val base: File) extends Iterable[HathiEntry] {
 
   def extractPages(text: HathiEntry): Iterator[(Int, String)] = {
     val reader = new ZipReader(text.zipFile)
-    // We drop the first item returned, since it's just the directory.
+    // We drop the first item returned, since it's just the container.
     reader.iterator.drop(1).map {
       case (path, source) => {
         val Array(_, name) = path.split("""\/""")
