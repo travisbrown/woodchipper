@@ -108,7 +108,7 @@ jQuery("#pca-viz-variance").bind("plotclick", function (event, pos, item) {
 /***** Pie chart stuff *******/
 
 function pie(data) {
-
+  /*
 	// For now, choose the number of significant topics per document to be FOUR (hardcoded). This needs to be parametrized later.
 	var no_of_significant_topics_per_document=4;
 
@@ -218,17 +218,18 @@ function pie(data) {
 	most_significant_topics_for_this_document.push(data.document.features[index_of_topic_with_currently_second_highest_probability]);
 	most_significant_topics_for_this_document.push(data.document.features[index_of_topic_with_currently_third_highest_probability]);
 	most_significant_topics_for_this_document.push(data.document.features[index_of_topic_with_currently_fourth_highest_probability]);
-	
-	probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_highest_probability);
+
+  probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_highest_probability);
 	probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_second_highest_probability);
 	probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_third_highest_probability);
 	probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_fourth_highest_probability);
 	
 	for( var i = 0; i<no_of_significant_topics_per_document; i++){
 			
-			topic[i] = [];
+			pietopic[i] = [];
 			for (var j = 0; j < no_of_words_constituting_each_topic; j++) {
-				  pietopic[i].push(most_significant_topics_for_this_document[j].slice(0,5).join(" ") );
+				  //pietopic[i].push(most_significant_topics_for_this_document[j].slice(0,5).join(" ") );
+				  pietopic[i].push(pca_viz.topics[most_significant_topics_for_this_document[j]].slice(0,5).join(" ") );
 			 }		  
 			 pie_data[i] = { "label": pietopic[i], "data": probabilities_of_the_most_significant_topics_for_this_document[i] };
 	}
@@ -238,9 +239,30 @@ function pie(data) {
 			sum_of_the_most_significant_probabilities_for_this_document += probabilities_of_the_most_significant_topics_for_this_document[i];
 	}		
 	pie_data[i+1] = { "label": "Other", "data": (1-sum_of_the_most_significant_probabilities_for_this_document) };
-	
-	alert(pie_data);
-	
+  */
+
+  var k = 4;
+
+  var indexed = [];
+  for (var i = 0; i < data.document.features.length; i++) {
+    indexed.push([i, data.document.features[i]]);
+  }
+
+  indexed.sort(function(a, b) {
+    return a[1] < b[1];
+  });
+
+  var prob_mass_seen = 0.0;
+  var pie_data = [];
+  for (var i = 0; i < k; i++) {
+    prob_mass_seen += indexed[i][1];
+    pie_data.push({
+      "label": pca_viz.topics[indexed[i][0]].slice(0, 5).join(" "),
+      "data": indexed[i][1]
+    });
+  }
+  pie_data.push({ "label": "Other", "data": 1 - prob_mass_seen });
+
 	var pca_viz_piechart = {
 	  "series": { 
 		  "pie": {
