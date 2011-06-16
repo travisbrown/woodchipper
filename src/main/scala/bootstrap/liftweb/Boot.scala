@@ -62,6 +62,7 @@ class Boot {
       case "js" :: "flot" :: "jquery.flot.js" :: Nil => true
       case "js" :: "flot" :: "jquery.flot.navigate.js" :: Nil => true
       case "js" :: "flot" :: "jquery.flot.pie.js" :: Nil => true
+      case "css" :: "default.css" :: Nil => true
     })
 
     // where to search snippet
