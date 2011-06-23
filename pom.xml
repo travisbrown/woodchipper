@@ -79,6 +79,11 @@
       <artifactId>argot_${scala.version}</artifactId>
       <version>0.3.1</version>
     </dependency>
+    <dependency>
+      <groupId>net.java.dev.jets3t</groupId>
+      <artifactId>jets3t</artifactId>
+      <version>0.8.1</version>
+    </dependency>
     <!--<dependency>
       <groupId>org.apache.karaf.shell</groupId>
       <artifactId>org.apache.karaf.shell.console</artifactId>
