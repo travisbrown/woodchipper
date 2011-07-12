@@ -4,6 +4,40 @@ package model {
 import _root_.net.liftweb.mapper._
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
+import scala.collection.mutable
+
+/*
+
+// [SB 07/08/11 : We don't need this -- using a class here is overkill as merely
+// a tuple (associating a word with a probability) ought to do quite well. 
+// So, I'm commenting this class definition out.
+
+// wordWithProb is actually a tuple. The reason that we are making it into a 
+// named class is that, in the loadTopics method in the MalletTopicReader makes
+// use of a method called findOrAdd, defined in Text.scala. The overloaded findOrAdd
+// method ought to find (or add) an entire tuple at a time in/to a Collection of 
+// tuples. It seems likely that, in order to do that, merely having an on-the-fly
+// tuple would not be sufficient. 
+
+object WordWithProb  {
+  override def dbTableName = "wordWithProbs" // define the DB table name
+}
+
+class WordWithProb (w: String, pr: Double) extends LongKeyedMapper[WordWithProb] with IdPK {
+    def getSingleton = WordWithProb // what's the "meta" server 
+    var word = w
+	private var _prob = pr
+	
+    // Getter
+    def prob = _prob
+
+    // Setter
+    def prob_= (value:Double):Unit = _prob = value
+	
+}	
+
+*/
+
 
 object Collection extends Collection with LongKeyedMetaMapper[Collection] {
   override def dbTableName = "collections" // define the DB table name
@@ -20,11 +54,57 @@ object Collection extends Collection with LongKeyedMetaMapper[Collection] {
       existing.head
     }
   }
+  
+   /*  
+   // Overload the findOrAdd method;
+   def findOrAdd(weight: Double): Collection = {
+    val existing = this.findAll(By(Collection.weight, weight))
+    if (existing.isEmpty) {
+      val collection = this.create.weight(weight)
+      collection.save
+      collection
+    } else {
+      existing.head
+    }
+  }
+  */
+  
+  /* Commenting this out as we're going to be using tuples rather than 
+      an explicit findOrAdd class  -- SB 07/11/11
+      
+  // Overload the findOrAdd method; this is necessary because 
+  // when we think of a topic, we're now no longer simply thinking 
+  // of a topic as made up only of words, but now of words and their 
+  // normalized probabilities in the topic, as well. 
+  
+  // Overloaded method for the case in which a tuple rather than a 
+  // string is passed as parameter; the tuple consists of a string (a word)
+  // and a double (the probability associated with that word in the topic.
+  
+  def findOrAdd(woWiPro: WordWithProb): Collection = {
+  
+    // I'm not completely sure what is happening in this line,
+    // especially with regard to the "By"
+    
+    val existing = this.findAll(By(Collection.woWiPro, woWiPro))
+    if (existing.isEmpty) {
+      val collection = this.create.woWiPro(woWiPro)
+      collection.save
+      collection
+    } else {
+      existing.head
+    }
+  }
+  */
+  
+  
+  
 }
 
 class Collection extends LongKeyedMapper[Collection] with IdPK {
   def getSingleton = Collection // what's the "meta" server
   object name extends MappedString(this, 512)
+  // object woWiPro extends WordWithProb
 }
 
 object Text extends Text with LongKeyedMetaMapper[Text] {
@@ -49,6 +129,7 @@ object Text extends Text with LongKeyedMetaMapper[Text] {
     text
   }
 }
+	
 
 class Text extends LongKeyedMapper[Text] with IdPK {
   def getSingleton = Text // what's the "meta" server
