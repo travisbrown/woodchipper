@@ -1,4 +1,5 @@
-import edu.umd.mith.cc.util
+package edu.umd.mith.cc.util
+
 import java.io._
 import scala.io._
 import java.util.TreeSet
@@ -26,7 +27,7 @@ class MalletTopicReader(file: File, n: Int) {
          case hd :: tail => hd + sumOfWeights(tail.toArray)
           case Nil => 0
      }
-     
+    
      /* val topics = allTopicsWithWeights.map(topicWithWeights =>
              var sumOfWeights= 0
              topicWithWeights.foreach { topicWord =>
@@ -39,7 +40,7 @@ class MalletTopicReader(file: File, n: Int) {
                      topicWord => 
                         (topicWord.getID().asInstanceOf[String], topicWord.getWeight()/ sumOfWeights ))   
      )  */
-     
+   
      val allTopicsWithWeights = convert(ParallelTopicModel.read(file))
      
      // val topics = allTopicsWithWeights.getTopWords(n).map(
@@ -50,10 +51,11 @@ class MalletTopicReader(file: File, n: Int) {
      // However, getTopWords being a Mallet function, we shouldn't change getTopWords 
      // directly, but instead put a wrapper around it (or write our own function).
      
-     
+     println("0000")
      
      val topics = allTopicsWithWeights.map(
                     topicWithWeights => {  
+                       println("00")
                        var sum = sumOfWeights(topicWithWeights.map(x=>x.getWeight()))
                  	   topicWithWeights.map(topicWord => {  
                  	   
@@ -62,34 +64,36 @@ class MalletTopicReader(file: File, n: Int) {
                        // weight; these two elements together form a tuple.
                        	    				   
 							 /*
-								
 						     // [SB 07/08/11 : We don't need this -- using a class here is overkill as merely
 						     // a tuple (associating a word with a probability) ought to do quite well. 
 						     // So, I'm commenting this class definition out.
-                       
                    		      WordWithProb(topicWord.getID().asInstanceOf[String], topicWord.getWeight()/ sum)
-                   		    
                    		      */
                    		      
-                   		      (topicWord.getID().asInstanceOf[String], topicWord.getWeight()/ sum)
+                   		      println("0")
+                   		      // (topicWord.getID().asInstanceOf[String], topicWord.getWeight()/ sum)
+                   		      (topicWord.getID().toString, topicWord.getWeight()/ sum)
                    	   })
                     }  
      )   
-     
+     println("000")
      var topicNumber = 0 
      var significantTopicWords = new Array[Int](topics.length)
+     println("1")
      topics.foreach{ 
        topic => {
 		 var probMass = 0.0
 		 significantTopicWords(topicNumber) = 0
+		
 		 // 0.6 is a magic number -- change it later on
 		 while (probMass <  0.6) {
 			 probMass = probMass + (topic(significantTopicWords(topicNumber)))._2
 			 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) + 1
 		 }
-		 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) - 1
-	   }	 
-     }		 
+		 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) - 1	
+	  }	 
+     }	
+     println("2")
  	 
  	 // Each topic is a list (actually a hashSet) of tuples, each 
  	 // tuple being of the form 
@@ -136,7 +140,8 @@ class MalletTopicReader(file: File, n: Int) {
 				 }
 			    } 
   	         }  	        
-     } 
+     }
+     println("3")
    }
  }
  
@@ -149,9 +154,13 @@ class MalletTopicReader(file: File, n: Int) {
      
      if (args.length > 0) {
        val reader = new MalletTopicReader(args(0), 0)
+       println("-1")
        reader.loadTopics
+       println("-2")
      } else {
+       println("-3") 
        Topic.findAll.foreach { topic =>
+         println("-4") 
          topic.words.foreach(println(_))
        }
      }
