@@ -23,8 +23,11 @@ object WordWithProb  {
   override def dbTableName = "wordWithProbs" // define the DB table name
 }
 
-class WordWithProb (w: String, pr: Double) extends LongKeyedMapper[WordWithProb] with IdPK {
-    def getSingleton = WordWithProb // what's the "meta" server 
+*/
+
+// class WordWithProb (w: String, pr: Double) extends LongKeyedMapper[WordWithProb] with IdPK {
+class WordWithProb (w: String, pr: Double) {
+    // def getSingleton = WordWithProb // what's the "meta" server 
     var word = w
 	private var _prob = pr
 	
@@ -36,7 +39,7 @@ class WordWithProb (w: String, pr: Double) extends LongKeyedMapper[WordWithProb]
 	
 }	
 
-*/
+
 
 
 object Collection extends Collection with LongKeyedMetaMapper[Collection] {

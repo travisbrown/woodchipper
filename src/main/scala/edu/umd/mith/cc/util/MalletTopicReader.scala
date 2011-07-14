@@ -13,16 +13,45 @@ import cc.mallet.types.IDSorter
 
 class MalletTopicReader(file: File, n: Int) {
 
-   def convert(m: ParallelTopicModel) = {
-     m.getSortedWords.map(_.asInstanceOf[TreeSet[IDSorter]].iterator.asScala.toArray).toList
-   }
- 
+	 def convert(m: ParallelTopicModel) = {
+		 m.getSortedWords.map(_.asInstanceOf[TreeSet[IDSorter]].iterator.asScala.toArray).toList
+	 }
+   
+	
+	 // arrays to pass the words and weights to json;
+	 // this is going to be an "iregularly" shaped two-dimensional
+	 // array with differentially sized rows, because different rows
+	 // will contain the significant words for different topics, and
+	 // the numbers of significant words for various topics are likely
+	 // to be different from each other
+	 
+	 // make use of generic arrays that scala provides -- java
+	 // wouldn't have permitted this
+	 
+	 /* 
+	 
+	  // oddly, this (the def below) didn't work -- why? The scala compiler generated an
+	  // error message saying:  error: too many arguments for method 
+	  // elementsOfATopic: (xs: List[T])(implicit evidence$1: ClassManifest[T])Array[T]
+      // [INFO]      		 elementsOfATopic( (Word Int), significantTopicWords(whichTopic)) 
+      
+      // Don't know why this didn't work.
+
+	 def elementsOfATopic[T: ClassManifest](xs: List[T]): Array[T] = {
+	    val arr = new Array[T](xs.length)
+	    for (i<- 0 until xs.length)
+	     arr(i) = xs(i)
+	    arr
+	 }   
+	 
+	 */
+	  
    def this(path: String, n: Int) = this(new File(path), n)
    
    def loadTopics() {   
      
      // This is not the recommended way to do it;
-     // do it using "fold" instead
+     // we should do it using "fold" instead
      def sumOfWeights(wordWeights: Array[Double]): Double = wordWeights.toList match {
          case hd :: tail => hd + sumOfWeights(tail.toArray)
           case Nil => 0
@@ -48,8 +77,7 @@ class MalletTopicReader(file: File, n: Int) {
      // Earlier, topics used to be lists (actually treeSets) of just words only, and so it 
      // made sense to do it this way (as in the commented line above). However, now that 
      // topics are actually lists of tuples, we need to approach this differently. 
-     // However, getTopWords being a Mallet function, we shouldn't change getTopWords 
-     // directly, but instead put a wrapper around it (or write our own function).
+     
      
      println("0000")
      
@@ -70,15 +98,32 @@ class MalletTopicReader(file: File, n: Int) {
                    		      WordWithProb(topicWord.getID().asInstanceOf[String], topicWord.getWeight()/ sum)
                    		      */
                    		      
-                   		      println("0")
+                   		      
                    		      // (topicWord.getID().asInstanceOf[String], topicWord.getWeight()/ sum)
-                   		      (topicWord.getID().toString, topicWord.getWeight()/ sum)
+                   		      // (topicWord.getID().toString, topicWord.getWeight()/ sum)
+                   		      //(Word.findOrAdd(topicWord.getID()), topicWord.getWeight()/ sum)
+                   		      
+                   		      // create the tuple
+                   		      val word =  
+                   		         ParallelTopicModel.read(file).getAlphabet.lookupObject(topicWord.getID()).asInstanceOf[String]
+                   		      val probability = topicWord.getWeight()/ sum
+                   		         /* print("word=")
+								 print(word) 
+								 print(" ")
+								 print("probability=")
+								 print(probability)
+				                 println() */
+                   		      (word,probability)
+                   		        
                    	   })
+                   	 
                     }  
-     )   
+     )
+     
+     
      println("000")
-     var topicNumber = 0 
      var significantTopicWords = new Array[Int](topics.length)
+     var topicNumber = 0 
      println("1")
      topics.foreach{ 
        topic => {
@@ -86,12 +131,13 @@ class MalletTopicReader(file: File, n: Int) {
 		 significantTopicWords(topicNumber) = 0
 		
 		 // 0.6 is a magic number -- change it later on
-		 while (probMass <  0.6) {
-			 probMass = probMass + (topic(significantTopicWords(topicNumber)))._2
+		 while (probMass <  0.05) {
+			 probMass = probMass + ((topic.toList)(significantTopicWords(topicNumber)))._2
 			 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) + 1
 		 }
 		 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) - 1	
-	  }	 
+	  }
+	  topicNumber = topicNumber + 1
      }	
      println("2")
  	 
@@ -99,50 +145,66 @@ class MalletTopicReader(file: File, n: Int) {
  	 // tuple being of the form 
  	 // (word:String probability:Double)
  	 
- 	 
-     topics.foreach { topicWords =>   
-        
+ 	 var listOfAllTopics: List[List[WordWithProb]] = List()
+ 	 var whichTopic = -1
+     topics.foreach { topicWords => 
+             whichTopic = whichTopic + 1
+             println("0") 
       	     val topic = Topic.create
      		 topic.save
      		 
-     		 var whichWord=0
+     		 var whichWord = -1
+     		 
+     		 // Construct the array of tuples from the generic method defined earlier.
+     		 // The format of the tuple gets passed to the implicit parameter which is
+     		 // the class manifest in the method
+     		 
+     		 var elementsOfATopic: List[WordWithProb] = List()
+     		 
  	         topicWords.foreach { 
- 	           pair => {
-				 if (whichWord <= significantTopicWords(topicNumber)) {
-					 // Note: each "word" below is now actually 
-					 // a tuple (the string and the normalized weight)
-					 
-					 // This then creates a problem. Word.findOrAdd expects a
-					 // string, but it gets a tuple. How to resolve this?
-					 // For the moment, I am going ahead and overloading the 
-					 // findOrAdd function.
-		   
-				     val word = Word.findOrAdd(pair._1)
-				     
-				     //remove this line later -- this is just for debugging purposes
-				     val dummy = pair._2
-				     
-				     print("word=")
-				     print(word) 
-				     print(" ")
-				     print("probability=")
-				     print(dummy)
-				     println()
+				pair => {
 				   
-				     // Note: "weight" is actually not a weight, but a (normalized) probability.
-				     // That we call it "weight" is just an artifact of how this used to be 
-				     // represented earlier.
 				   
-				     val topicWord = TopicWord.create.topic(topic).word(word).weight(pair._2)  	           
-				   
-				     topicWord.save
-				     whichWord = whichWord+1
-				 }
-			    } 
-  	         }  	        
+				   whichWord = whichWord + 1 
+				   if (whichWord <= significantTopicWords(whichTopic)) {
+					 println("New pair")
+					 if (whichWord <= significantTopicWords(topicNumber)) {
+						 // Note: each "word" below is now actually 
+						 // a tuple (the string and the normalized weight)
+						 
+						 // This then creates a problem. Word.findOrAdd expects a
+						 // string, but it gets a tuple. How to resolve this?
+						 // For the moment, I am going ahead and overloading the 
+						 // findOrAdd function.
+			   
+						 val word = Word.findOrAdd(pair._1)
+						 val probability = pair._2
+						 
+						 print("word=")
+						 print(word) 
+						 print(" ")
+						 print("probability=")
+						 print(probability)
+						 println()
+						 var wordWithProb = new WordWithProb(word.asInstanceOf[String],probability)
+						 elementsOfATopic =  wordWithProb::elementsOfATopic
+					   
+						 // Note: "weight" is actually not a weight, but a (normalized) probability.
+						 // That we call it "weight" is just an artifact of how this used to be 
+						 // represented earlier.
+					   
+						 // val topicWord = TopicWord.create.topic(topic).word(word).weight(probability)  	           
+						 // topicWord.save 
+					 }		 	 
+			       } 
+			     } 
+  	         }
+  	         listOfAllTopics = elementsOfATopic::listOfAllTopics
+  	         
      }
-     println("3")
+     listOfAllTopics
    }
+   
  }
  
  object MalletTopicReader {
