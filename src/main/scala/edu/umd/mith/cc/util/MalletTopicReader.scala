@@ -28,7 +28,7 @@ class MalletTopicReader(file: File, n: Int) {
      } */
      
      def sumOfWeights(wordWeights: Array[Double]): Double = 
-               wordWeights.toList.sum
+               wordWeights.sum
          
     
      val allTopicsWithWeights = convert(ParallelTopicModel.read(file))
@@ -39,29 +39,34 @@ class MalletTopicReader(file: File, n: Int) {
                     topicWithWeights => {  
                        println("00")
                        var sum = sumOfWeights(topicWithWeights.map(x=>x.getWeight()))
+                       print("Number of words in this topic is: ")
+                       println(topicWithWeights.length)
                  	   topicWithWeights.map(topicWord =>  { 
                    		  (ParallelTopicModel.read(file).getAlphabet.lookupObject(topicWord.getID()).asInstanceOf[String],topicWord.getWeight()/ sum)    
-     })})     
-                   	  
-     
-     
+     })})         
      println("000")
      var significantTopicWords = new Array[Int](topics.length)
      var topicNumber = 0 
      println("1")
      topics.foreach{ 
-       topic => {
-		 var probMass = 0.0
-		 significantTopicWords(topicNumber) = 0
-		
-		 // 0.05 is a magic number -- change it later on
-		 while (probMass <  0.05) {
-			 probMass = probMass + ((topic.toList)(significantTopicWords(topicNumber)))._2
-			 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) + 1
-		 }
-		 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) - 1	
-	  }
-	  topicNumber = topicNumber + 1
+		  topic => {
+			 var probMass = 0.0
+			 significantTopicWords(topicNumber) = 0			
+			 // 0.05 is a magic number -- change it later on
+			 while (probMass <  0.05) {
+				 probMass = probMass + ((topic.toList)(significantTopicWords(topicNumber)))._2
+				 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) + 1
+			 }
+			 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) - 1	
+		  }
+		  print("topicNumber=")
+		  print(topicNumber) 
+		  print(" ")
+		  print("significantTopicWords(topicNumber)")
+		  print(significantTopicWords(topicNumber))
+		  println()
+		 
+		  topicNumber = topicNumber + 1
      }	
      println("2")
  	 
@@ -87,11 +92,13 @@ class MalletTopicReader(file: File, n: Int) {
      		 
  	         topicWords.foreach { 
 				pair => {
+				   println(pair)
 				   whichWord = whichWord + 1 
 				   if (whichWord < significantTopicWords(whichTopic)) {
 				   
 					     println("New pair")
 						 val word = Word.findOrAdd(pair._1)
+						 println("AAAAAAAAAA")
 						 val probability = pair._2
 						 print("word=")
 						 print(word) 
@@ -99,16 +106,22 @@ class MalletTopicReader(file: File, n: Int) {
 						 print("probability=")
 						 print(probability)
 						 println()
-						 elementsOfATopic =  (word.asInstanceOf[String],probability)::elementsOfATopic
-						 val topicWord = TopicWord.create.topic(topic).word(word).weight(probability)  	           
+						 // elementsOfATopic =  ((word.getID()).asInstanceOf[String],probability)::elementsOfATopic
+						 elementsOfATopic =  ((pair._1).asInstanceOf[String],probability)::elementsOfATopic
+						 println("BBBBBBBBBB")
+						 val topicWord = TopicWord.create.topic(topic).word(word).weight(probability)  	
+						 println("CCCCCCCCCC")
 						 topicWord.save 
 					 }		 	 
 			       } 
 			     } 
+			     println(elementsOfATopic)
 			     listOfAllTopics = elementsOfATopic::listOfAllTopics
   	         }
-  	   listOfAllTopics      
+  	         print(listOfAllTopics)      
+  	         listOfAllTopics      
      }
+ }
  
  object MalletTopicReader {
    def main(args: Array[String]) {
@@ -125,5 +138,5 @@ class MalletTopicReader(file: File, n: Int) {
      }
    }
  }
-}
+
  
