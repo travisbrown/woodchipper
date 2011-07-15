@@ -25,6 +25,8 @@ object WordWithProb  {
 
 */
 
+/*
+
 // class WordWithProb (w: String, pr: Double) extends LongKeyedMapper[WordWithProb] with IdPK {
 class WordWithProb (w: String, pr: Double) {
     // def getSingleton = WordWithProb // what's the "meta" server 
@@ -39,6 +41,7 @@ class WordWithProb (w: String, pr: Double) {
 	
 }	
 
+*/
 
 
 
