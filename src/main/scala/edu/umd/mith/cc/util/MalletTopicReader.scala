@@ -30,10 +30,15 @@ class MalletTopicReader(file: File, n: Int) {
      def sumOfWeights(wordWeights: Array[Double]): Double = 
                wordWeights.sum
          
-    
-     val allTopicsWithWeights = convert(ParallelTopicModel.read(file))
+     val fileRead = ParallelTopicModel.read(file)
+     val allTopicsWithWeights = convert(fileRead)
      
      println("0000")
+     
+     /* 
+     val out = new java.io.FileWriter("out.txt");
+     */
+     
      
      val topics = allTopicsWithWeights.map(
                     topicWithWeights => {  
@@ -41,9 +46,28 @@ class MalletTopicReader(file: File, n: Int) {
                        var sum = sumOfWeights(topicWithWeights.map(x=>x.getWeight()))
                        print("Number of words in this topic is: ")
                        println(topicWithWeights.length)
+                       
+                       /* out.write("\r\n")
+                       out.write("Number of words in this topic is: ")
+                       out.write(topicWithWeights.length.asInstanceOf[String])
+                       out.write("\r\n")
+                       out.write("\r\n") 
+                       */
+                       
                  	   topicWithWeights.map(topicWord =>  { 
-                   		  (ParallelTopicModel.read(file).getAlphabet.lookupObject(topicWord.getID()).asInstanceOf[String],topicWord.getWeight()/ sum)    
-     })})         
+                 	   
+                 	      /* out.write((fileRead.getAlphabet.lookupObject(topicWord.getID())).asInstanceOf[String]) 
+                   		  out.write(" ")
+                   		  out.write("\r\n")
+                   		  */
+                   		  
+                          (fileRead.getAlphabet.lookupObject(topicWord.getID()).asInstanceOf[String],topicWord.getWeight()/ sum)
+                       })
+                    })  
+                    
+     /* out.close()
+     */
+     
      println("000")
      var significantTopicWords = new Array[Int](topics.length)
      var topicNumber = 0 
