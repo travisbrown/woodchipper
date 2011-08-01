@@ -28,6 +28,7 @@ class MalletTopicReader(file: File, n: Int) {
      } */
      
      def sumOfWeights(wordWeights: Array[Double]): Double = 
+<<<<<<< HEAD
                wordWeights.sum
          
      val fileRead = ParallelTopicModel.read(file)
@@ -40,10 +41,20 @@ class MalletTopicReader(file: File, n: Int) {
      */
      
      
+=======
+               wordWeights.toList.sum
+         
+    
+     val allTopicsWithWeights = convert(ParallelTopicModel.read(file))
+     
+     println("0000")
+     
+>>>>>>> travis/piechart
      val topics = allTopicsWithWeights.map(
                     topicWithWeights => {  
                        println("00")
                        var sum = sumOfWeights(topicWithWeights.map(x=>x.getWeight()))
+<<<<<<< HEAD
                        print("Number of words in this topic is: ")
                        println(topicWithWeights.length)
                        
@@ -67,12 +78,20 @@ class MalletTopicReader(file: File, n: Int) {
                     
      /* out.close()
      */
+=======
+                 	   topicWithWeights.map(topicWord =>  { 
+                   		  (ParallelTopicModel.read(file).getAlphabet.lookupObject(topicWord.getID()).asInstanceOf[String],topicWord.getWeight()/ sum)    
+     })})     
+                   	  
+     
+>>>>>>> travis/piechart
      
      println("000")
      var significantTopicWords = new Array[Int](topics.length)
      var topicNumber = 0 
      println("1")
      topics.foreach{ 
+<<<<<<< HEAD
 		  topic => {
 			 var probMass = 0.0
 			 significantTopicWords(topicNumber) = 0			
@@ -91,6 +110,20 @@ class MalletTopicReader(file: File, n: Int) {
 		  println()
 		 
 		  topicNumber = topicNumber + 1
+=======
+       topic => {
+		 var probMass = 0.0
+		 significantTopicWords(topicNumber) = 0
+		
+		 // 0.05 is a magic number -- change it later on
+		 while (probMass <  0.05) {
+			 probMass = probMass + ((topic.toList)(significantTopicWords(topicNumber)))._2
+			 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) + 1
+		 }
+		 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) - 1	
+	  }
+	  topicNumber = topicNumber + 1
+>>>>>>> travis/piechart
      }	
      println("2")
  	 
@@ -116,16 +149,22 @@ class MalletTopicReader(file: File, n: Int) {
      		 
  	         topicWords.foreach { 
 				pair => {
+<<<<<<< HEAD
 				
 				   /* println(pair)
 				   */
 				   
+=======
+>>>>>>> travis/piechart
 				   whichWord = whichWord + 1 
 				   if (whichWord < significantTopicWords(whichTopic)) {
 				   
 					     println("New pair")
 						 val word = Word.findOrAdd(pair._1)
+<<<<<<< HEAD
 						 println("AAAAAAAAAA")
+=======
+>>>>>>> travis/piechart
 						 val probability = pair._2
 						 print("word=")
 						 print(word) 
@@ -133,15 +172,21 @@ class MalletTopicReader(file: File, n: Int) {
 						 print("probability=")
 						 print(probability)
 						 println()
+<<<<<<< HEAD
 						 // elementsOfATopic =  ((word.getID()).asInstanceOf[String],probability)::elementsOfATopic
 						 elementsOfATopic =  ((pair._1).asInstanceOf[String],probability)::elementsOfATopic
 						 println("BBBBBBBBBB")
 						 val topicWord = TopicWord.create.topic(topic).word(word).weight(probability)  	
 						 println("CCCCCCCCCC")
+=======
+						 elementsOfATopic =  (word.asInstanceOf[String],probability)::elementsOfATopic
+						 val topicWord = TopicWord.create.topic(topic).word(word).weight(probability)  	           
+>>>>>>> travis/piechart
 						 topicWord.save 
 					 }		 	 
 			       } 
 			     } 
+<<<<<<< HEAD
 			     println(elementsOfATopic)
 			     listOfAllTopics = elementsOfATopic::listOfAllTopics
   	         }
@@ -149,6 +194,12 @@ class MalletTopicReader(file: File, n: Int) {
   	         listOfAllTopics      
      }
  }
+=======
+			     listOfAllTopics = elementsOfATopic::listOfAllTopics
+  	         }
+  	   listOfAllTopics      
+     }
+>>>>>>> travis/piechart
  
  object MalletTopicReader {
    def main(args: Array[String]) {
@@ -165,5 +216,9 @@ class MalletTopicReader(file: File, n: Int) {
      }
    }
  }
+<<<<<<< HEAD
 
+=======
+}
+>>>>>>> travis/piechart
  
