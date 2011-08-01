@@ -77,7 +77,7 @@
     </dependency>
     <dependency>
       <groupId>org.clapper</groupId>
-      <artifactId>argot_${scala.version}</artifactId>
+      <artifactId>argot_2.9.0</artifactId>
       <version>0.3.1</version>
     </dependency>
     <dependency>
