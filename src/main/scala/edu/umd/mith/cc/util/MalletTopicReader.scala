@@ -116,7 +116,10 @@ class MalletTopicReader(file: File, n: Int) {
      		 
  	         topicWords.foreach { 
 				pair => {
-				   println(pair)
+				
+				   /* println(pair)
+				   */
+				   
 				   whichWord = whichWord + 1 
 				   if (whichWord < significantTopicWords(whichTopic)) {
 				   
