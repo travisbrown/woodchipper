@@ -6,6 +6,7 @@ import java.io.File
 import java.io.FileReader
 import java.util.regex._
 import net.liftweb.json._
+//import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 import scala.io.Source
 
@@ -85,19 +86,24 @@ class JsonManager(
       val reader = new BufferedReader(new FileReader(file))
       val doc = JsonParser.parse(reader)
       val metadata = doc \ "metadata"
-      val JField(_, JString(collection)) = metadata \ "collection"
-      val JField(_, JString(textId)) = metadata \ "textid"
-      val JField(_, JString(title)) = metadata \ "title"
-      val JField(_, JString(author)) = metadata \ "author"
-      val JField(_, JInt(year)) = metadata \ "date"
+      val JString(collection) = metadata \ "collection"
+      val JString(textId) = metadata \ "textid"
+      val JString(title) = metadata \ "title"
+      val JString(author) = metadata \ "author"
+      val JInt(year) = metadata \ "date"
+      //val JField(_, JString(collection)) = metadata \ "collection"
+      //val JField(_, JString(textId)) = metadata \ "textid"
+      //val JField(_, JString(title)) = metadata \ "title"
+      //val JField(_, JString(author)) = metadata \ "author"
+      //val JField(_, JInt(year)) = metadata \ "date"
 
-      val JField(_, JArray(chunks)) = doc \ "chunks"
+      val JArray(chunks) = doc \ "chunks"
 
       val text = JsonText(textId, collection, title, author, year.toInt,
         chunks.map { chunk =>
-          val JField(_, JString(chunkId)) = chunk \ "metadata" \ "chunkid"
-          val JField(_, JString(plain)) = chunk \ "representations" \ "plain"
-          val JField(_, JString(html)) = chunk \ "representations" \ "html"
+          val JString(chunkId) = chunk \ "metadata" \ "chunkid"
+          val JString(plain) = chunk \ "representations" \ "plain"
+          val JString(html) = chunk \ "representations" \ "html"
           JsonDocument(chunkId, plain, html, Map())
         }
       )

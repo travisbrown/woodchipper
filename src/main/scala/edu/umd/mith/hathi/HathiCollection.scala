@@ -3,6 +3,10 @@ package edu.umd.mith.hathi
 import java.io.File
 import scala.io.Source
 
+import net.liftweb.json.JsonDSL._
+import net.liftweb.json.JsonAST._
+import net.liftweb.json.Printer._
+
 import edu.umd.mith.util.Implicits._
 import edu.umd.mith.util.ZipReader
 
@@ -85,6 +89,24 @@ class HathiCollection(private val base: File) extends Iterable[HathiEntry] {
           id, number, content.replaceAll("\n", " ")
         )
       }
+    }
+  }
+
+  def formatJson(id: String, title: String, creator: String, date: Int): Option[JObject] = {
+    val pages = this.find(id).map { 
+      this.extractPages(_).map { case (number, content) =>
+        val meta = JObject(List(JField("chunkid", "%03d".format(number))))
+        val representations = JObject(List(JField("plain", content),
+          JField("html", content.replaceAll("\n", "<br />"))))
+        JObject(List(JField("metadata", meta), JField("representations", representations)))
+      }
+    }
+    pages.map { pages => JObject(List(JField("metadata", JObject(List(JField("textid", id),
+      JField("collection", "hathi"),
+      JField("title", title),
+      JField("author", creator),
+      JField("date", date)))),
+      JField("chunks", JArray(pages.toList))))
     }
   }
 }
