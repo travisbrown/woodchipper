@@ -20,7 +20,7 @@ class MalletTopicReader(file: File, n: Int) {
 	  
    def this(path: String, n: Int) = this(new File(path), n)
    
-   def loadTopics() {   
+   def loadTopics(includedMass: Double) {   
      
      /* def sumOfWeights(wordWeights: Array[Double]): Double = wordWeights.toList match {
          case hd :: tail => hd + sumOfWeights(tail.toArray)
@@ -77,7 +77,7 @@ class MalletTopicReader(file: File, n: Int) {
 			 var probMass = 0.0
 			 significantTopicWords(topicNumber) = 0			
 			 // 0.05 is a magic number -- change it later on
-			 while (probMass <  0.05) {
+			 while (probMass < includedMass) {
 				 probMass = probMass + ((topic.toList)(significantTopicWords(topicNumber)))._2
 				 significantTopicWords(topicNumber) = significantTopicWords(topicNumber) + 1
 			 }
@@ -157,7 +157,7 @@ class MalletTopicReader(file: File, n: Int) {
      
      if (args.length > 0) {
        val reader = new MalletTopicReader(args(0), 0)   
-       reader.loadTopics  
+       reader.loadTopics(0.05)
      } else {     
        Topic.findAll.foreach { topic =>         
          topic.words.foreach(println(_))
