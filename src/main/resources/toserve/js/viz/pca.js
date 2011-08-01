@@ -4,6 +4,13 @@ var pca_viz_pcY = 1;
 var flot_point_radius = 4;
 var flot_shadow_size = 8;
 
+
+var no_of_significant_topics_per_document=5;
+// Which topics should these be? The ones that are the most salient for the document,
+// i.e. the ones for which the probability distribution is the highest for the document
+
+var no_of_significant_words_for_topic=5;
+
 var pca_viz_colors = [
   "#7FFF00", "#FF6347", "#7FFFD4", "#DDA0DD",
   "#B0C4DE", "#FFE4C4", "#B22222"
@@ -109,8 +116,8 @@ jQuery("#pca-viz-variance").bind("plotclick", function (event, pos, item) {
 
 function pie(data) {
   /*
-	// For now, choose the number of significant topics per document to be FOUR (hardcoded). This needs to be parametrized later.
-	var no_of_significant_topics_per_document=4;
+	// For now, choose the number of significant topics per document to be TWO (hardcoded). This needs to be parametrized later.
+	// var no_of_significant_topics_per_document=2;
 
 	var pie_data = new Array(no_of_significant_topics_per_document+1);
 	var pietopic = new Array(no_of_significant_topics_per_document);
@@ -219,7 +226,7 @@ function pie(data) {
 	most_significant_topics_for_this_document.push(data.document.features[index_of_topic_with_currently_third_highest_probability]);
 	most_significant_topics_for_this_document.push(data.document.features[index_of_topic_with_currently_fourth_highest_probability]);
 
-  probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_highest_probability);
+    probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_highest_probability);
 	probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_second_highest_probability);
 	probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_third_highest_probability);
 	probabilities_of_the_most_significant_topics_for_this_document.push(probability_of_topic_with_currently_fourth_highest_probability);
@@ -228,8 +235,9 @@ function pie(data) {
 			
 			pietopic[i] = [];
 			for (var j = 0; j < no_of_words_constituting_each_topic; j++) {
+			    
 				  //pietopic[i].push(most_significant_topics_for_this_document[j].slice(0,5).join(" ") );
-				  pietopic[i].push(pca_viz.topics[most_significant_topics_for_this_document[j]].slice(0,5).join(" ") );
+				  pietopic[i].push(pca_viz.topics[most_significant_topics_for_this_document[j]].slice(0,2).join(" ") );
 			 }		  
 			 pie_data[i] = { "label": pietopic[i], "data": probabilities_of_the_most_significant_topics_for_this_document[i] };
 	}
@@ -241,8 +249,7 @@ function pie(data) {
 	pie_data[i+1] = { "label": "Other", "data": (1-sum_of_the_most_significant_probabilities_for_this_document) };
   */
 
-  var k = 4;
-
+  
   var indexed = [];
   for (var i = 0; i < data.document.features.length; i++) {
     indexed.push([i, data.document.features[i]]);
@@ -254,10 +261,10 @@ function pie(data) {
 
   var prob_mass_seen = 0.0;
   var pie_data = [];
-  for (var i = 0; i < k; i++) {
+  for (var i = 0; i < no_of_significant_topics_per_document; i++) {
     prob_mass_seen += indexed[i][1];
-    pie_data.push({
-      "label": pca_viz.topics[indexed[i][0]].slice(0, 5).join(" "),
+    pie_data.push({ 
+      "label": pca_viz.topics[indexed[i][0]].slice(0, no_of_significant_words_for_topic).join(" "),
       "data": indexed[i][1]
     });
   }
@@ -302,9 +309,9 @@ function pca_viz_plot_loadings() {
   });
 
   var series = [];
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i <  no_of_significant_topics_per_document; i++) {
     series.push({
-      "label": pca_viz.topics[data[i].index].slice(0, 5).join(" "),
+      "label": pca_viz.topics[data[i].index].slice(0, no_of_significant_words_for_topic).join(" "),
       "lines": { "show": true },
       "points": { "radius": flot_point_radius, "show": true },
       "shadowSize": flot_shadow_size,
@@ -332,13 +339,140 @@ jQuery("#pca-viz-loadings").show();
 jQuery(document).ready(function() { pca_viz_plot_loadings();; });
 
 var pca_load_document = function(event, pos, item) {
+  
   if (item) {
     jQuery.getJSON('api/text/' + pca_viz.items[item.seriesIndex].id + '/' + item.dataIndex + '.json', function(data) {
       jQuery('#drilldown-title').text(data.text.title + ' (' + data.document.seq + ')');
       jQuery('#drilldown-author').text(data.text.author + ' (' + data.text.year + ')');
       jQuery('#drilldown-link').text("Visit source collection");
       jQuery('#drilldown-link').attr("href", data.document.url);
-      jQuery('#drilldown-text').html(data.document.html);
+      
+     
+      // jQuery(jQuery('#drilldown-text').html(data.document.html)).Tokenizer();
+       
+      // Replace every occurrence of a word called "word" (say) in the text document,
+      // by <span class="to_highlight">word</span>, if "word" is part of the words 
+      // characterizing the topic that is currently under the mouse.
+            
+      var indexed = [];
+         
+      // for (var i = 0; i < data.document.features.length; i++) {
+      
+      for (var i = 0; i <  no_of_significant_topics_per_document; i++) {    
+          indexed.push([i, data.document.features[i]]);
+      }
+      indexed.sort(function(a, b) {
+           return a[1] < b[1];
+      });
+      	
+      // Now replace each word in the document that matches any of the most significant words 
+      // belonging to any of the most significant topics.  The replacement here is really a
+      // "spanification" -- the original word is replaced by the same word sitting within a 
+      // span element that takes care of the highlighting. 
+      // We're doing the replacement using regular expressions.)
+      
+      // "spanify" the word for later highlighting
+      // by replacing the word "word" in the following manner, with:
+      // <span class="to_highlight">word</span>
+            
+      // Do this by (conceptually) concatenating (A), (B) and (C) together, where
+      // (A) is all the characters in the string before the jth
+      // position, (B) the new replacement, and (C) all the characters in the string
+      // from the (j+t)th position, where t is the number of letters in the word that is being 
+      // replaced. We won't deal with this at the level of individual characters however;
+      // instead, we will simply use the "replace" method for string objects.
+
+      for (var i = 0;  i <  no_of_significant_topics_per_document; i++) {      
+            for (var j = 0;  j <  pca_viz.topics.length; j++) {
+               
+                word_to_be_replaced = pca_viz.topics[indexed[i][0]].slice(j, j+1);
+                var re = "/" + word_to_be_replaced + "/gip";
+               
+                // This, however potentially messes up case/capitalization in the 
+                // document text. How to deal with this?
+                var replacement = "<span style=\"background-color:#FFFF00\""
+                                             + word_to_be_replaced
+                                                 + "</span>";
+                
+                data.document.html = data.document.html.replace(re,replacement); 
+             }   
+       } 
+       /* for (var j = 0; j < data.document.html.length; j++) {
+          // looking at the word that begins at the jth position in the document 
+      
+        	  var all_matches_false = true;
+      	  
+      	  // 
+      	  // We're doing pattern-matching with regexps to check for words in data.document.html
+          // that match any of the words in the topic currently under consideration
+          // (note: we're looking only at the first few specified words in the topic.
+          
+      	  for (var i = 0; i < no_of_significant_topics_per_document; i++) {
+      	      var word_matches = true;
+      	     
+      	     
+      	     // the i-th word in the topic is:
+             // pca_viz.topics[indexed[i][0]].slice(i, i+1)
+             
+      	     for (var k = 0; ((k < (pca_viz.topics[indexed[i][0]].slice(i,i+1)).length) && (data.document.html.charAt(j+k) != " ")     
+      	          && (data.document.html.charAt(j+k) != ";")
+                       && (data.document.html.charAt(j+k) != ",")
+                          && (data.document.html.charAt(j+k) != ":")
+                             && (data.document.html.charAt(j+k) != "-")); k++) {
+                             
+             // It was done this way above, instead of simply implementing with regexps because, for all we 
+             // know, topics in some weird situations could well contain "words" that have punctuation
+             // marks inside them, while the definition of a "word", as far as the text being 
+             // displayed is concerned, should be determined by word separators. Here, we have listed
+             // some word separators -- ideally, to be separated out and maintained as a list somewhere
+             // in one place so as not to clutter up the code.  -- SB
+             
+      	          	    
+                 if (data.document.html.charAt(j+k) != ((pca_viz.topics[indexed[i][0]].slice(i, i+1)).toString()).charAt(k))
+                      word_matches = false;
+              
+             }
+          }   
+          if (word_matches == true) {
+            all_matches_false = false; 
+          }
+          
+          //determine length of the word which began at the jth position in the string
+          var word_length =0;
+          while ( (data.document.html.charAt(j+word_length) != " ") && (data.document.html.charAt(j+word_length) != ".")
+                     && (data.document.html.charAt(j+word_length) != ";")
+                       && (data.document.html.charAt(j+word_length) != ",")
+                          && (data.document.html.charAt(j+word_length) != ":")
+                             && (data.document.html.charAt(j+word_length) != "-")) { 
+            word_length++;
+          }  
+         
+          if (all_matches_false == false) {
+            // i.e. at least one word in the topic has matched the word in the 
+            // document which began at the jth position in the document
+          
+            // then "spanify" the word for later highlighting
+            // by replacing the word "word" in the following manner, with:
+            // <span class="to_highlight">word</span>
+            
+            // Do this by concatenating (A), (B) and (C) together, where
+            // (A) all the characters in the string before the jth
+            // position, (B) the new replacement, and (C) all the characters in the string
+            // from the (j+t)th position, where t is the number of letters in the word that is being 
+            // replaced
+
+            
+            data.document.html = data.document.html.substr(0,j) 
+                                   + "<span style=\"background-color:#FFFF00\"" 
+                                       + data.document.html.substr(j,word_length)
+                                         + "</span>" 
+                                            + data.document.html.substr(j+word_length);
+            
+          }
+       }    */
+       
+      jQuery('#drilldown-text').html(data.document.html)
+         
       jQuery('#pca-viz-piechart').addClass("flot_lww");
       jQuery('#pca-viz-piechart').show();
       pie(data);
@@ -372,4 +506,170 @@ var pca_bind_both = function() {
 };
 
 pca_bind_both();
+
+/* Parser/Tokenizer */
+
+// This is the file "Tokenizer 1.0.1 Source", downloaded
+// from http://flesler.blogspot.com/2008/03/string-tokenizer-for-javascript.html
+// on June 20, 2011
+
+/**
+ * Tokenizer/jQuery.Tokenizer
+ * Copyright (c) 2007-2008 Ariel Flesler - aflesler(at)gmail(dot)com | http://flesler.blogspot.com
+ * Dual licensed under MIT and GPL.
+ * Date: 2/29/2008
+ *
+ * @projectDescription JS Class to generate tokens from strings.
+ * http://flesler.blogspot.com/2008/03/string-tokenizer-for-javascript.html
+ *
+ * @author Ariel Flesler
+ * @version 1.0.1
+ */
+
+/* 
+;(function(){
+	
+	var Tokenizer = function( tokenizers, doBuild ){
+		if( !(this instanceof Tokenizer ) )
+			return new Tokenizer( tokenizers, onEnd, onFound );
+			
+		this.tokenizers = tokenizers.splice ? tokenizers : [tokenizers];
+		if( doBuild )
+			this.doBuild = doBuild;
+	};
+	
+	Tokenizer.prototype = {
+		parse:function( src ){
+			this.src = src;
+			this.ended = false;
+			this.tokens = [ ];
+			do this.next(); while( !this.ended );
+			return this.tokens;
+		},
+		build:function( src, real ){
+			if( src )
+				this.tokens.push(
+					!this.doBuild ? src :
+					this.doBuild(src,real,this.tkn)
+				);	
+		},
+		next:function(){
+			var self = this,
+				plain;
+				
+			self.findMin();
+			plain = self.src.slice(0, self.min);
+			
+			self.build( plain, false );
+				
+			self.src = self.src.slice(self.min).replace(self.tkn,function( all ){
+				self.build(all, true);
+				return '';
+			});
+			
+			if( !self.src )
+				self.ended = true;
+		},
+		findMin:function(){
+			var self = this, i=0, tkn, idx;
+			self.min = -1;
+			self.tkn = '';
+			
+			while(( tkn = self.tokenizers[i++]) !== undefined ){
+				idx = self.src[tkn.test?'search':'indexOf'](tkn);
+				if( idx != -1 && (self.min == -1 || idx < self.min )){
+					self.tkn = tkn;
+					self.min = idx;
+				}
+			}
+			if( self.min == -1 )
+				self.min = self.src.length;
+		}
+	};
+	
+	if( window.jQuery ){
+		jQuery.tokenizer = Tokenizer;//export as jquery plugin
+		Tokenizer.fn = Tokenizer.prototype;
+	}else
+		window.Tokenizer = Tokenizer;//export as standalone class
+		
+})();
+
+var rows = [ ], row = rows[0] = [ ]; 
+// var tokenizerOutput = new Tokenizer( [',',';'],
+var tokenizerOutput = new Tokenizer( [' '],
+  function( text, isSeparator ){
+     if( isSeparator ){
+         if( text == ';' ){//new row
+             row = [ ];
+             rows.push(row);
+         }
+     }else{   
+         row.push(text);
+     } 
+  }
+);
+
+*/
+
+/* The highlight plugin 
+
+// This is the file jquery.highlight-3.js, downloaded
+// from http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html
+// on June 20, 2011
+
+highlight v3
+
+Highlights arbitrary terms.
+
+<http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html>
+
+MIT license.
+
+Johann Burkard
+<http://johannburkard.de>
+<mailto:jb@eaio.com>
+
+*/
+
+jQuery.fn.highlight = function(pat) {
+ function innerHighlight(node, pat) {
+  var skip = 0;
+  if (node.nodeType == 3) {
+   var pos = node.data.toUpperCase().indexOf(pat);
+   if (pos >= 0) {
+    var spannode = document.createElement('span');
+    spannode.className = 'highlight';
+    var middlebit = node.splitText(pos);
+    var endbit = middlebit.splitText(pat.length);
+    var middleclone = middlebit.cloneNode(true);
+    spannode.appendChild(middleclone);
+    middlebit.parentNode.replaceChild(spannode, middlebit);
+    skip = 1;
+   }
+  }
+  else if (node.nodeType == 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+   for (var i = 0; i < node.childNodes.length; ++i) {
+    i += innerHighlight(node.childNodes[i], pat);
+   }
+  }
+  return skip;
+ }
+ return this.each(function() {
+  innerHighlight(this, pat.toUpperCase());
+ });
+}; 
+
+jQuery.fn.removeHighlight = function() {
+ return this.find("span.highlight").each(function() {
+  this.parentNode.firstChild.nodeName;
+  with (this.parentNode) {
+   replaceChild(this.firstChild, this);
+   normalize();
+  }
+ }).end();
+}; 
+
+
+
 
