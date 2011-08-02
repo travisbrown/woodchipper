@@ -263,8 +263,13 @@ function pie(data) {
   var pie_data = [];
   for (var i = 0; i < no_of_significant_topics_per_document; i++) {
     prob_mass_seen += indexed[i][1];
+
+    var topic = pca_viz.topics[indexed[i][0]].slice(0, no_of_significant_words_for_topic);
+    var words = jQuery.map(topic, function(e, i) { return e[0]; });
+
     pie_data.push({ 
-      "label": pca_viz.topics[indexed[i][0]].slice(0, no_of_significant_words_for_topic).join(" "),
+      //"label": pca_viz.topics[indexed[i][0]].slice(0, no_of_significant_words_for_topic).join(" "),
+      "label": words.join(" "),
       "data": indexed[i][1]
     });
   }
@@ -307,11 +312,15 @@ function pca_viz_plot_loadings() {
   data.sort(function(a, b) {
     return (b.magnitude - a.magnitude);
   });
-
+ 
   var series = [];
   for (var i = 0; i <  no_of_significant_topics_per_document; i++) {
+    var topic = pca_viz.topics[data[i].index].slice(0, no_of_significant_words_for_topic); 
+    var words = jQuery.map(topic, function(e, i) { return e[0]; });
+
     series.push({
-      "label": pca_viz.topics[data[i].index].slice(0, no_of_significant_words_for_topic).join(" "),
+      //"label": pca_viz.topics[data[i].index].slice(0, no_of_significant_words_for_topic).join(" "),
+      "label": words.join(" "),
       "lines": { "show": true },
       "points": { "radius": flot_point_radius, "show": true },
       "shadowSize": flot_shadow_size,

@@ -156,8 +156,11 @@ class MalletTopicReader(file: File, n: Int) {
      boot.boot
      
      if (args.length > 0) {
+       Topic.findAll.foreach(_.delete_!)
+       Word.findAll.foreach(_.delete_!)
+       TopicWord.findAll.foreach(_.delete_!)
        val reader = new MalletTopicReader(args(0), 0)   
-       reader.loadTopics(0.05)
+       reader.loadTopics(0.5)
      } else {     
        Topic.findAll.foreach { topic =>         
          topic.words.foreach(println(_))

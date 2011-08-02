@@ -88,7 +88,7 @@ class PCAViz {
 
     val topics = Topic.findAll.map { topic =>
       // This isn't ideal.
-      topic.words.map(_.word.obj.openOr(Word.create).form.is)
+      topic.words.map(tw => (tw.word.obj.openOr(Word.create).form.is, tw.weight.is))
     }
 
     Script(
@@ -99,7 +99,7 @@ class PCAViz {
           "uid" -> Str(text.uid.is),
           "documents" -> new JsArray(documents.map { document => Str(document.uid.is) })
         )}),
-        "topics" -> new JsArray(topics.map(topic => new JsArray(topic.map(Str(_)).toList))),
+        "topics" -> new JsArray(topics.map(topic => new JsArray(topic.map(word => new JsArray(List(Str(word._1), JsCompactDouble(word._2, this.precision)))).toList))),
         "breaks" -> new JsArray(breaks.map(Num(_))),
         "data" -> this.convertDouble2DArray(data),
         "variance" -> this.convertDouble1DArrayWithIndex(variance),
