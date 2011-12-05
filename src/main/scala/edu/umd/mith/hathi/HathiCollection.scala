@@ -7,6 +7,8 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.Printer._
 
+import grizzled.file.GrizzledFile._
+
 import edu.umd.mith.util.Implicits._
 import edu.umd.mith.util.ZipReader
 
@@ -35,8 +37,8 @@ class HathiCollection(private val base: File) extends Iterable[HathiEntry] {
            .replace('=', '/')
 
   def iterator: Iterator[HathiEntry] = {
-    this.base.listSortedFiles.toIterator.flatMap { collection =>
-      (new File(collection, "pairtree_root")).leaves.map { path =>
+    this.base.listFiles.sorted.toIterator.flatMap { collection =>
+      (new File(collection, "pairtree_root")).listRecursively(false).filter(_.isFile).toList.sorted.map { path =>
         val metsFile = new File(path, path.getName + ".mets.xml")
         val zipFile = new File(path, path.getName + ".zip")
         assert(metsFile.exists)

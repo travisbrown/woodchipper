@@ -12,8 +12,8 @@
   <name>woodchipper Project</name>
   <inceptionYear>2010</inceptionYear>
   <properties>
-    <scala.version>2.9.0-1</scala.version>
-    <liftweb.version>2.4-M1</liftweb.version>
+    <scala.version>2.9.1</scala.version>
+    <liftweb.version>2.4-M5</liftweb.version>
     <!-- Common plugin settings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
@@ -77,8 +77,13 @@
     </dependency>
     <dependency>
       <groupId>org.clapper</groupId>
-      <artifactId>argot_2.9.0</artifactId>
-      <version>0.3.1</version>
+      <artifactId>argot_${scala.version}</artifactId>
+      <version>0.3.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clapper</groupId>
+      <artifactId>grizzled-scala_${scala.version}</artifactId>
+      <version>1.0.9</version>
     </dependency>
     <dependency>
       <groupId>net.java.dev.jets3t</groupId>

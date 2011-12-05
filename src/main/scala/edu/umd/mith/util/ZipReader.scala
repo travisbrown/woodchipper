@@ -18,7 +18,7 @@ import scala.io.Source
   */
 class ZipReader(file: File)
   extends Iterable[(String, Source)] with Closeable {
-  private val zipped = new ZipFile(file)
+  private val zipped = new ZipFile(this.file)
 
   def this(path: String) = this(new File(path)) 
 
@@ -29,8 +29,6 @@ class ZipReader(file: File)
       e => (e.getName, Source.fromInputStream(this.zipped.getInputStream(e)))
     }
 
-  def close() {
-    this.zipped.close()
-  }
+  def close() = this.zipped.close()
 }
 
