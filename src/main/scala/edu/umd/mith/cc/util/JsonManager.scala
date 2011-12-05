@@ -121,7 +121,7 @@ class JsonManager(
   def documentToMallet(text: JsonText, document: JsonDocument) = {
     val content = wsPattern.matcher(document.plain.trim.split("\n").drop(3).mkString("\n")).replaceAll(" ")
     val corrected = if (text.year < 1800) this.corrector.correct(content) else content
-    "%s~%s _ %s".format(text.id, document.id, corrected)
+    "%s~%s _ %s".format(text.id, document.id, document.plain.trim)
   }
 
   def asMallet: Iterator[String] = {
