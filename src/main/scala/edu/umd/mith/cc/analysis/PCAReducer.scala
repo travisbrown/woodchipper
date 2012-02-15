@@ -6,14 +6,15 @@ import cern.colt.matrix.linalg.EigenvalueDecomposition
 import cern.colt.matrix.linalg.Algebra
 //import cern.jet.math.Functions
 
-class PCAReduction(
-  val data: Array[Array[Double]],
-  val variance: Array[Double],
-  val loadings: Array[Array[Double]]
-) extends Reduction {
-}
+case class PCAReduction(
+  data: Array[Array[Double]],
+  variance: Array[Double],
+  loadings: Array[Array[Double]]
+) extends Reduction
 
-class PCAReducer extends Reducer[PCAReduction] {
+class PCAReducer(val corr: Boolean) extends Reducer[PCAReduction] {
+  def this() = this(false)
+
   private val algebra = new Algebra
 
   def reduce(data: Array[Array[Double]], dims: Int): PCAReduction = {
@@ -34,7 +35,11 @@ class PCAReducer extends Reducer[PCAReduction] {
     }
 
     /* Next the eigenvalue decomposition of the covariance matrix. */
-    val cov = Statistic.covariance(matrix)
+    val cov = if (this.corr)
+      Statistic.correlation(Statistic.covariance(matrix))
+    else
+      Statistic.covariance(matrix)
+
     val evd = new EigenvalueDecomposition(cov)
 
     val v = evd.getV.viewColumnFlip

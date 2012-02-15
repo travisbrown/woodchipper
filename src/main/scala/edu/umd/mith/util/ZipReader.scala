@@ -5,7 +5,6 @@ import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 /** Provides a convenient way of iterating over entries in a zipped file.
@@ -18,16 +17,16 @@ import scala.io.Source
   */
 class ZipReader(file: File)
   extends Iterable[(String, Source)] with Closeable {
-  private val zipped = new ZipFile(this.file)
-
   def this(path: String) = this(new File(path)) 
 
-  def iterator: Iterator[(String, Source)] = 
-    this.zipped.entries.asScala.toSeq.sortWith {
-      _.getName < _.getName
-    }.toIterator.map {
-      e => (e.getName, Source.fromInputStream(this.zipped.getInputStream(e)))
-    }
+  private val zipped = new ZipFile(this.file)
+  private val entries = this.zipped.entries.asScala.toIndexedSeq
+
+  implicit val zipEntryOrdering: Ordering[ZipEntry] = Ordering.by(_.getName)
+
+  def iterator = this.entries.sorted.iterator.map {
+    e => (e.getName, Source.fromInputStream(this.zipped.getInputStream(e)))
+  }
 
   def close() = this.zipped.close()
 }

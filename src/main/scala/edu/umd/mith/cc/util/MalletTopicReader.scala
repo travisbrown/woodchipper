@@ -14,7 +14,7 @@ import cc.mallet.types.IDSorter
 class MalletTopicReader(file: File, n: Int) {
 
 	def convert(m: ParallelTopicModel) = {
-		 m.getSortedWords.map(_.asInstanceOf[TreeSet[IDSorter]].iterator.asScala.toArray).toList
+		 m.getSortedWords.asScala.map(_.asInstanceOf[TreeSet[IDSorter]].iterator.asScala.toArray).toList
 	}
    
 	  
