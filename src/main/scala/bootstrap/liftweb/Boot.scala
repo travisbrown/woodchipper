@@ -16,10 +16,10 @@ import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConn
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.edu.umd.mith.cc.model._
 //import net.liftweb.widgets.flot._
-import edu.umd.mith.cc.util.CCURLBuilder
+import edu.umd.mith.cc.util.DefaultURLBuilder
 
 object WoodchipperRest extends RestHelper {
-  val urlBuilder = new CCURLBuilder
+  val urlBuilder = new DefaultURLBuilder
 
   serve {
     case Req("api" :: "text" :: textId :: docSeqId :: _, "json", GetRequest) => {
