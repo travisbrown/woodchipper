@@ -29,8 +29,8 @@ class HathiCollection(private val base: String) {
            .replaceAll("""\=""", "/")
 
   def texts: Iterator[HathiTextInfo] = {
-    (new File(this.base)).listSortedFiles.toIterator.flatMap { collection =>
-      (new File(collection, "pairtree_root")).leaves.map { path =>
+    new File(this.base).listFiles.sorted.toIterator.flatMap { collection =>
+      new File(collection, "pairtree_root").leaves.map { path =>
         val metsFile = new File(path, path.getName + ".mets.xml")
         val zipFile = new File(path, path.getName + ".zip")
         assert(metsFile.exists)
