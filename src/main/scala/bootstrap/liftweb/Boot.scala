@@ -15,9 +15,9 @@ class Boot {
     if (!DB.jndiJdbcConnAvailable_?) {
       val vendor = new StandardDBVendor(
         Props.get("db.driver") openOr "org.h2.Driver",
-			  Props.get("db.url") openOr 
-			  "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-			  Props.get("db.user"), Props.get("db.password")
+			  Props.get("db.url") openOr "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
+			  Props.get("db.user"),
+        Props.get("db.password")
       )
 
       LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
@@ -49,19 +49,12 @@ class Boot {
     LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
     LiftRules.ajaxEnd = Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
-    LiftRules.early.append(this.makeUtf8)
+    LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
 
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
     LiftRules.statelessDispatchTable.append(edu.umd.mith.cc.services.RestService)
 
     S.addAround(DB.buildLoanWrapper)
-  }
-
-  /**
-   * Force the request to be UTF-8
-   */
-  private def makeUtf8(req: HTTPRequest) {
-    req.setCharacterEncoding("UTF-8")
   }
 }
 

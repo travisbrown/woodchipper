@@ -6,7 +6,6 @@ import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.mapper._
 import _root_.java.util.Date
-import edu.umd.mith.cc.lib._
 import edu.umd.mith.cc.model._
 import edu.umd.mith.cc.analysis._
 import Helpers._
@@ -47,17 +46,17 @@ class PCAViz {
   assert(this.data(0).length == this.variance.length)
   assert(this.variance.length == this.loadings.length)*/
 
-  def convertDouble1DArray(a: Array[Double]): JsExp = {
+  def convertDouble1DArray(a: IndexedSeq[Double]): JsExp = {
     new JsArray(a.map(JsCompactDouble(_, this.precision)).toList)
   }
 
-  def convertDouble1DArrayWithIndex(a: Array[Double]): JsExp = {
+  def convertDouble1DArrayWithIndex(a: IndexedSeq[Double]): JsExp = {
     new JsArray(a.zipWithIndex.map { case (x, i) =>
       JsArray(Num(i + 1), JsCompactDouble(x, this.precision))
     }.toList)
   }
 
-  def convertDouble2DArray(a: Array[Array[Double]]): JsExp = {
+  def convertDouble2DArray(a: IndexedSeq[IndexedSeq[Double]]): JsExp = {
     new JsArray(a.map { r =>
       new JsArray(r.map(JsCompactDouble(_, this.precision)).toList)
     }.toList)
@@ -78,9 +77,18 @@ class PCAViz {
     
     val breaks = texts.map(_._2.size).scanLeft(0)(_ + _)
 
-    val matrix = texts.flatMap { _._2.map { _.features } }
+    //val matrix = texts.flatMap { _._2.map { _.features } }
+    val matrix = texts.flatMap(_._2.map(_.features))
+    /*doc =>
+      val fs = doc.features
+      Seq(1,4,5,6,8,12,19,20,22,24,25,30,31,37,28,40,43,46,56,62,64,70,71,83,85).foreach {
+        i => fs(i) = 0.0
+      }
+      fs
+    }}*/
+
     val reducer = new PCAReducer
-    val reduced = reducer.reduce(matrix.toArray, k)
+    val reduced = reducer.reduce(matrix.toIndexedSeq, k)
 
     val data = reduced.data
     val variance = reduced.variance

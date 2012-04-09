@@ -1,12 +1,12 @@
 package edu.umd.mith.cc.analysis
 
 trait Reduction {
-  def data: Array[Array[Double]]
-  def dims: Int = this.data(0).length
+  def data: IndexedSeq[IndexedSeq[Double]]
+  def dims: Int = this.data.headOption.map(_.length).getOrElse(0)
 }
 
 trait Reducer[B <: Reduction] {
-  def reduce(data: Array[Array[Double]], dims: Int): B
-  def reduce(data: Array[Array[Double]]): B = this.reduce(data, Int.MaxValue)
+  def reduce(data: IndexedSeq[IndexedSeq[Double]], dims: Int): B
+  def reduce(data: IndexedSeq[IndexedSeq[Double]]): B = this.reduce(data, Int.MaxValue)
 }
 

@@ -7,29 +7,26 @@ import cern.colt.matrix.linalg.Algebra
 //import cern.jet.math.Functions
 
 class PCAReduction(
-  val data: Array[Array[Double]],
-  val variance: Array[Double],
-  val loadings: Array[Array[Double]]
+  val data: IndexedSeq[IndexedSeq[Double]],
+  val variance: IndexedSeq[Double],
+  val loadings: IndexedSeq[IndexedSeq[Double]]
 ) extends Reduction {
 }
 
 class PCAReducer extends Reducer[PCAReduction] {
   private val algebra = new Algebra
 
-  def reduce(data: Array[Array[Double]], dims: Int): PCAReduction = {
-    val matrix = new DenseDoubleMatrix2D(data)
+  def reduce(data: IndexedSeq[IndexedSeq[Double]], dims: Int): PCAReduction = {
+    val matrix = new DenseDoubleMatrix2D(data.map(_.toArray).toArray)
 
     /* First we compute the empirical mean. */
     val cols = matrix.columns
     val rows = matrix.rows
-    val colMeans = new Array[Double](cols)
-    for (i <- 0 until cols) {
-      colMeans(i) = matrix.viewColumn(i).zSum / rows
-    }
 
     for (i <- 0 until cols) {
+      val means = matrix.viewColumn(i).zSum / rows
       for (j <- 0 until rows) {
-        matrix.set(j, i, matrix.get(j, i) - colMeans(i))
+        matrix.set(j, i, matrix.get(j, i) - means)
       }
     }
 
@@ -52,7 +49,7 @@ class PCAReducer extends Reducer[PCAReduction] {
     val varianceView = evs.viewPart(0, colsSelected)
     val loadingsView = v.viewDice.viewPart(0, 0, colsSelected, v.rows)
 
-    new PCAReduction(dataView.toArray, varianceView.toArray.map(_ / evt), loadingsView.toArray)
+    new PCAReduction(dataView.toArray.map(genericWrapArray), varianceView.toArray.map(_ / evt), loadingsView.toArray.map(genericWrapArray))
   }
 }
 

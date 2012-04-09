@@ -7,7 +7,6 @@ import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.mapper._
 import _root_.java.util.Date
-import edu.umd.mith.cc.lib._
 import edu.umd.mith.cc.model._
 import Helpers._
 
