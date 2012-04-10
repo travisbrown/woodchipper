@@ -1,4 +1,4 @@
-package edu.umd.mith.cc.analysis
+package edu.umd.mith.woodchipper.analysis
 
 import cern.colt.matrix.impl.DenseDoubleMatrix2D
 import cern.colt.matrix.doublealgo.Statistic

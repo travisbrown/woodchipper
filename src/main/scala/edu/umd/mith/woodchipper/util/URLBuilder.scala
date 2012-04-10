@@ -1,4 +1,4 @@
-package edu.umd.mith.cc.util
+package edu.umd.mith.woodchipper.util
 
 trait URLBuilder {
   def buildTextURL(

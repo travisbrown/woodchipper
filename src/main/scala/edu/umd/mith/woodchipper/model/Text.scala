@@ -1,4 +1,4 @@
-package edu.umd.mith.cc.model
+package edu.umd.mith.woodchipper.model
 
 import net.liftweb.mapper._
 import net.liftweb.util._

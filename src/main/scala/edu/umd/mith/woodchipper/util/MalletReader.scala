@@ -1,11 +1,10 @@
-package edu.umd.mith.cc {
-package util {
+package edu.umd.mith.woodchipper.util
 
 import java.io._
-import _root_.bootstrap.liftweb.Boot
-import _root_.net.liftweb.mapper._
+import bootstrap.liftweb.Boot
+import net.liftweb.mapper._
 
-import edu.umd.mith.cc.model._
+import edu.umd.mith.woodchipper.model._
 
 class MalletReader(collection: String) {
   def readFeatures(reader: BufferedReader) {
@@ -49,5 +48,3 @@ object MalletReader {
   }
 }
 
-}
-}

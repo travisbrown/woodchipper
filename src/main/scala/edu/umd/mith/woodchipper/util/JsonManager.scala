@@ -1,4 +1,4 @@
-package edu.umd.mith.cc.util
+package edu.umd.mith.woodchipper.util
 
 import java.io._
 import java.io.BufferedReader

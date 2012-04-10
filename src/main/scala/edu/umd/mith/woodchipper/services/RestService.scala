@@ -1,11 +1,11 @@
-package edu.umd.mith.cc.services
+package edu.umd.mith.woodchipper.services
 
 import net.liftweb.http.{ GetRequest, Req }
 import net.liftweb.http.rest.RestHelper
 import net.liftweb.json.JsonDSL._
 import net.liftweb.mapper.By
-import edu.umd.mith.cc.model.{ Document, Text }
-import edu.umd.mith.cc.util.DefaultURLBuilder
+import edu.umd.mith.woodchipper.model.{ Document, Text }
+import edu.umd.mith.woodchipper.util.DefaultURLBuilder
 
 object RestService extends RestHelper {
   private val urlBuilder = new DefaultURLBuilder

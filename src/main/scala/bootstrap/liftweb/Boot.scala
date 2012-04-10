@@ -8,7 +8,7 @@ import net.liftweb.sitemap.{ Menu, SiteMap }
 import net.liftweb.sitemap.Loc.Hidden
 import net.liftweb.mapper.{ DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor }
 import java.sql.{ Connection, DriverManager }
-import edu.umd.mith.cc.model._
+import edu.umd.mith.woodchipper.model._
 
 class Boot {
   def boot {
@@ -32,7 +32,7 @@ class Boot {
       case "css" :: "default.css" :: Nil => true
     })
 
-    LiftRules.addToPackages("edu.umd.mith.cc")
+    LiftRules.addToPackages("edu.umd.mith.woodchipper")
     Schemifier.schemify(true, Schemifier.infoF _, User, Collection, Text, Document, Feature, Topic, Word, TopicWord)
 
     val sitemap = SiteMap(
@@ -52,7 +52,7 @@ class Boot {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
 
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
-    LiftRules.statelessDispatchTable.append(edu.umd.mith.cc.services.RestService)
+    LiftRules.statelessDispatchTable.append(edu.umd.mith.woodchipper.services.RestService)
 
     S.addAround(DB.buildLoanWrapper)
   }

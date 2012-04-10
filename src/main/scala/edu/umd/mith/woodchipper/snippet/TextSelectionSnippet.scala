@@ -1,12 +1,12 @@
-package edu.umd.mith.cc.snippet
+package edu.umd.mith.woodchipper.snippet
 
-import _root_.scala.xml.NodeSeq
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.mapper._
-import _root_.java.util.Date
-import edu.umd.mith.cc.model._
+import scala.xml.NodeSeq
+import net.liftweb.http._
+import net.liftweb.util._
+import net.liftweb.common._
+import net.liftweb.mapper._
+import java.util.Date
+import edu.umd.mith.woodchipper.model.Text
 import Helpers._
 
 class TextSelectionSnippet {

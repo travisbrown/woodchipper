@@ -1,4 +1,4 @@
-package edu.umd.mith.cc.analysis
+package edu.umd.mith.woodchipper.analysis
 
 trait Reduction {
   def data: IndexedSeq[IndexedSeq[Double]]

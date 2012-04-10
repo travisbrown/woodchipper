@@ -1,8 +1,8 @@
-package edu.umd.mith.cc.model
+package edu.umd.mith.woodchipper.model
 
-import _root_.net.liftweb.mapper._
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.common._
+import net.liftweb.mapper._
+import net.liftweb.util._
+import net.liftweb.common._
 
 object Topic extends Topic with LongKeyedMetaMapper[Topic] {
   override def dbTableName = "topics"
@@ -23,18 +23,14 @@ class Topic extends LongKeyedMapper[Topic] with IdPK with OneToMany[Long, Topic]
 
 object Word extends Word with LongKeyedMetaMapper[Word] {
   override def dbTableName = "words"
-  override def dbIndexes = Index(IndexField(form)) :: Nil
+  override def dbIndexes = List(Index(IndexField(form)))
 
-  def findOrAdd(form: String) = {
-    val existing = this.findAll(By(Word.form, form))
-    if (existing.isEmpty) {
+  def findOrAdd(form: String) =
+    this.findAll(By(Word.form, form)).headOption.getOrElse {
       val word = this.create.form(form)
       word.save
       word
-    } else {
-      existing.head
     }
-  }
 }
 
 class Word extends LongKeyedMapper[Word] with IdPK with OneToMany[Long, Word] {

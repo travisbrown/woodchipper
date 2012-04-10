@@ -1,14 +1,12 @@
-package edu.umd.mith.cc {
-package util {
+package edu.umd.mith.woodchipper.util
 
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import net.liftweb.json._
 
-import _root_.bootstrap.liftweb.Boot
-
-import edu.umd.mith.cc.model._
+import bootstrap.liftweb.Boot
+import edu.umd.mith.woodchipper.model._
 
 class JsonImporter(path: String) {
   private val files = (new File(path)).listFiles.filter(_.getName.endsWith(".json"))
@@ -56,5 +54,3 @@ object JsonImporter {
   }
 }
 
-}
-}
