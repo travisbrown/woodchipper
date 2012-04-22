@@ -15,14 +15,20 @@ class PCAReduction(
 
 class PCAReducer extends Reducer[PCAReduction] {
   def reduce(data: IndexedSeq[IndexedSeq[Double]], dims: Int): PCAReduction = {
-    val dists = data.map { i =>
-      data.map { j =>
-        i.zip(j).map { case (x, y) => x * math.log(x / y) }.sum
-      }.toArray
-    }.toArray
+    val a = data.view.map(_.toArray).toArray
+    val dists = a.map { i =>
+      a.map { j =>
+        i.zip(j).map {
+          case (x, y) if x == 0.0 || y == 0.0 => 0.0
+          case (x, y) => x * math.log(x / y) 
+        }.sum
+      }
+    }
+    System.err.println("Computed divergences.")
 
-    val pos = Array.fill(dims, data.size)(0.)
-    new mdsj.StressMinimization(dists, pos)
+    //val pos = Array.fill(dims, data.size)(0.)
+    //val pos = mdsj.MDSJ.stressMinimization(dists)
+    val pos = mdsj.MDSJ.classicalScaling(dists)
 
     new PCAReduction(pos.transpose.map(_.toIndexedSeq), IndexedSeq.fill(dims)(0.0), IndexedSeq.fill(dims, data(0).length)(0.0))
   }
