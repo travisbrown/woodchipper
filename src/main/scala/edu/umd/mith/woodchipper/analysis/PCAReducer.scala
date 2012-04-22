@@ -14,6 +14,21 @@ class PCAReduction(
 }
 
 class PCAReducer extends Reducer[PCAReduction] {
+  def reduce(data: IndexedSeq[IndexedSeq[Double]], dims: Int): PCAReduction = {
+    val dists = data.map { i =>
+      data.map { j =>
+        i.zip(j).map { case (x, y) => x * math.log(x / y) }.sum
+      }.toArray
+    }.toArray
+
+    val pos = Array.fill(dims, data.size)(0.)
+    new mdsj.StressMinimization(dists, pos)
+
+    new PCAReduction(pos.transpose.map(_.toIndexedSeq), IndexedSeq.fill(dims)(0.0), IndexedSeq.fill(dims, data(0).length)(0.0))
+  }
+}
+
+class RealPCAReducer extends Reducer[PCAReduction] {
   private val algebra = new Algebra
 
   def reduce(data: IndexedSeq[IndexedSeq[Double]], dims: Int): PCAReduction = {
