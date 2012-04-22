@@ -36,7 +36,7 @@ function pca_viz_plot_map() {
     "grid": { "clickable": true, "hoverable": true },
     "xaxis": { "zoomRange": [0.1, 2], "panRange": [-1, 1] },
     "yaxis": { "zoomRange": [0.1, 2], "panRange": [-1, 1] },
-    //"zoom": { "interactive": true },
+    "zoom": { "interactive": true },
     "pan": { "interactive": true }
   };
 
