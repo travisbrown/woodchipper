@@ -1,3 +1,6 @@
+Woodchipper
+===========
+
 Woodchipper is a web application for visualization of collections of documents
 using topic modeling and principal component analysis.
 
