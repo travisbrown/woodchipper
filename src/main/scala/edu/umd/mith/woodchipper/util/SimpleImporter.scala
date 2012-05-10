@@ -57,6 +57,41 @@ class TDists(f: String, n: Int) {
   }
 }
 
+object SImporter {
+  def main(args: Array[String]) {
+    val boot = new bootstrap.liftweb.Boot
+    boot.boot
+
+    //val LinePattern = """(\S+)\s+_\s+(.*)""".r
+
+    val docs = io.Source.fromFile(args(0)).getLines.map { line =>
+      val fs = line.split(" ")
+      (fs(0), (fs(1).replaceAll("_", " "), fs(2).replaceAll("_", " "), fs(3).toInt, fs.drop(4).mkString(" ")))
+    }.toSeq.groupBy(_._1.split("-").take(3).mkString("-"))
+
+    val features = new TDists(args(1), 40)
+    //val title = args(2)
+    //val author = args(3)
+    //val year = args(4).toInt
+    //val text = Text.add("pg", title.replaceAll(" ", "_").toLowerCase, title, author, year)
+    //docs.foreach { case (h, b) =>
+    //  val document = Document.add(text, h, b, b)
+    //  document.setFeatures(features.m(h))
+    //}
+    docs.foreach { case (dId, ds) =>
+      val text = Text.add("fl", dId.replaceAll(" ", "_").toLowerCase, dId, dId, 0)
+      ds.foreach { case (id, (title, author, year, content)) => 
+      /*docs.filter { case (h, _) => 
+        val f = h.split("-")(0)
+        f == bId
+      }.foreach { case (h, b) =>*/
+        val document = Document.add(text, title.replaceAll(" ", "_"), content, content)
+        document.setFeatures(features.m(id))
+      }
+    }
+  }
+}
+
 object SimpleImporter {
   def main(args: Array[String]) {
     val boot = new bootstrap.liftweb.Boot
