@@ -100,16 +100,36 @@ object SimpleImporter {
     val meta = Source.fromFile(args(2)).getLines.map { line =>
       val fields = line.split("\\t")
       (fields(0), (fields(2), fields(1), fields(3).toInt))
-    }
+    }.toMap
 
-    val LinePattern = """(\S+-\d\d\d\d)\s+_\s+(.*)""".r
+    val PgLinePattern = """(\d+-\d\d\d\d)\s+_\s+(.*)""".r
+    val OtherLinePattern = """(\S+-\d\d\d\d)\s+_(.*)""".r
 
-    val docs = io.Source.fromFile(args(0)).getLines.map { line =>
-      val LinePattern(h, b) = line
-      (h, b.trim)
-    }.toSeq
+    val docs = io.Source.fromFile(args(0)).getLines.map {
+      case PgLinePattern(h, b) =>
+        val Array(id, _) = h.split("-")
+        val (title, author, year) = meta(id)
+        ((title, author, year), (h, b.trim))
+      case OtherLinePattern(h, b) =>
+        val stuff = h.split("-")
+        ((stuff(1).replaceAll("_", " "), stuff(0).replaceAll("_", " "), 0), (h, b.trim))
+    }.toSeq.groupBy(_._1)
 
     val features = new TDists(args(1), 100)
+
+    docs.foreach { case ((author, title, year), contents) =>
+      val text = Text.add("pg", title.replaceAll(" ", "_").toLowerCase, title, author, year)
+      contents.zipWithIndex.foreach { case ((_, (h, b)), i) =>
+        val document = Document.add(text, h, b, b)
+        document.setFeatures(features.m(h))
+      }
+    }
+        
+      
+      
+      
+      
+
     //val title = args(2)
     //val author = args(3)
     //val year = args(4).toInt
@@ -118,7 +138,7 @@ object SimpleImporter {
     //  val document = Document.add(text, h, b, b)
     //  document.setFeatures(features.m(h))
     //}
-    meta.foreach { case (bId, (title, author, year)) =>
+    /*meta.foreach { case (bId, (title, author, year)) =>
       val text = Text.add("pg", title.replaceAll(" ", "_").toLowerCase, title, author, year)
       docs.filter { case (h, _) => 
         val f = h.split("-")(0)
@@ -127,7 +147,7 @@ object SimpleImporter {
         val document = Document.add(text, h, b, b)
         document.setFeatures(features.m(h))
       }
-    }
+    }*/
     //features.m.foreach { case (k, v) => println(k + ": " + v.mkString(" ")) }
   }
 }
