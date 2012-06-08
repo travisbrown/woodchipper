@@ -12,11 +12,15 @@ import edu.umd.mith.hathi.util.DateCleaner
 
 class MetadataParser(val path: String, private val blacklist: Set[String])
   extends Iterable[(String, Map[String, List[String]])] {
+  // These type aliases are only here to allow more concise definitions below.
   type FieldMap = Map[String, List[String]]
   type Record = (String, FieldMap)
 
-  def this(path: String) = this(path, Set())
+  // Constructor with an empty attribute blacklist. 
+  def this(path: String) = this(path, Set.empty)
 
+  // This method reads consecutive text and entity events and concatenates
+  // them.
   private def readText(reader: Iterator[XMLEvent]): String = {
     val builder = new StringBuilder
     var current = reader.next
@@ -32,6 +36,7 @@ class MetadataParser(val path: String, private val blacklist: Set[String])
     builder.toString
   }
 
+  // This method reads and returns a single record.
   private def readRecord(reader: Iterator[XMLEvent]): FieldMap = {
     val map = scala.collection.mutable.Map[String, List[String]]()
     var current = reader.next
@@ -51,6 +56,7 @@ class MetadataParser(val path: String, private val blacklist: Set[String])
   }
 
   def iterator: Iterator[Record] = {
+    // We only need element start and end events and non-empty text events.
     val reader = new XMLEventReader(Source.fromFile(this.path)).filter {
       case _: EvElemStart => true
       case _: EvElemEnd => true
